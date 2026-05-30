@@ -1,6 +1,36 @@
 /* --- Google Fonts & Reset --- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
+
+/* 🚀 WEBSITE FIX: NO HILNA (Fix Horizontal Scroll) */
+html, body {
+    overflow-x: hidden; /* Website ko left-right hilne se rokega */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px; /* Ya jo bhi aapki max width hai */
+    margin: 0 auto;
+    padding: 0 15px; /* Sides se thodi jagah chhorega taaki content chup na jaye */
+    box-sizing: border-box; /* Padding ko width ke andar rakhega */
+}
+
+/* Contact wala section jo chup raha hai, usay responsive banayein */
+.nav-links, .contact-section {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Mobile par agar koi cheez bari ho rahi hai to usay force karein */
+@media (max-width: 600px) {
+    img, table, div {
+        max-width: 100%;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
