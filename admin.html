@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admin Portal - Pine Hills School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .admin-container { padding: 40px 0; max-width: 900px !important; }
+        .admin-box { background: var(--light-gray); padding: 30px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .admin-box h2 { color: var(--dark-blue); margin-bottom: 15px; border-bottom: 2px solid var(--primary-blue); padding-bottom: 5px; }
+        
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 600; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 2px solid var(--light-blue); border-radius: 6px; font-size: 15px; outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-blue); }
+        
+        .admin-btn { background: var(--primary-blue); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; }
+        .admin-btn:hover { background: var(--dark-blue); }
+        
+        .success-alert { display: none; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 12px; border-radius: 6px; margin-top: 10px; font-weight: 600; text-align: center; }
+        .excel-info { background: #e2e3e5; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #383d41; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
+            <div class="school-name">Pine Hills School (Admin Dashboard)</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">View Website</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container admin-container">
+        <h1 style="color: var(--dark-blue); margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Management Admin Panel</h1>
+
+        <div class="admin-box">
+            <h2><i class="fas fa-calendar-alt"></i> 1. Update Date Sheet (Add Exam)</h2>
+            <div class="form-group">
+                <label>Select Class:</label>
+                <select id="dsClass">
+                    <option value="kg1">KG 1</option><option value="kg2">KG 2</option>
+                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date & Day:</label>
+                <input type="text" id="dsDate" placeholder="01 June (Monday)">
+            </div>
+            <div class="form-group">
+                <label>Subject Name:</label>
+                <input type="text" id="dsSubject" placeholder="Mathematics">
+            </div>
+            <div class="form-group">
+                <label>Exam Timing:</label>
+                <input type="text" id="dsTime" placeholder="08:30 AM - 11:30 AM">
+            </div>
+            <div class="form-group">
+                <label>Room / Block No:</label>
+                <input type="text" id="dsRoom" placeholder="Block A - Room 102">
+            </div>
+            <button class="admin-btn" onclick="addDateSheet()"><i class="fas fa-plus"></i> Add to Date Sheet</button>
+            <div id="dsAlert" class="success-alert">Date Sheet Updated Successfully!</div>
+        </div>
+
+        <div class="admin-box">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 2. Update Student Fee Record</h2>
+            <div class="form-group">
+                <label>Student Roll Number:</label>
+                <input type="text" id="feeRoll" placeholder="e.g. 1001">
+            </div>
+            <div class="form-group">
+                <label>Student Name:</label>
+                <input type="text" id="feeName" placeholder="Muhammad Ali">
+            </div>
+            <div class="form-group">
+                <label>Father Name:</label>
+                <input type="text" id="feeFather" placeholder="Sajid Hussain">
+            </div>
+            <div class="form-group">
+                <label>Class:</label>
+                <input type="text" id="feeClass" placeholder="Class 9">
+            </div>
+            <div class="form-group">
+                <label>Current Payable Dues (Rs.):</label>
+                <input type="number" id="feePayable" placeholder="e.g. 4500">
+            </div>
+            <div class="form-group">
+                <label>Fee Month Name:</label>
+                <input type="text" id="feeMonth" placeholder="e.g. May 2026">
+            </div>
+            <div class="form-group">
+                <label>Select Fee Status:</label>
+                <select id="feeStatusSelect">
+                    <option value="Paid">Paid (Fees Jama Ho Gai)</option>
+                    <option value="Unpaid">Unpaid (Fees Rehti Hai)</option>
+                </select>
+            </div>
+            <button class="admin-btn" onclick="updateFeeRecord()"><i class="fas fa-save"></i> Save Student Fee Record</button>
+            <div id="feeAlert" class="success-alert">Student Fee Record Saved Successfully!</div>
+        </div>
+
+        <div class="admin-box">
+            <h2><i class="fas fa-book-open"></i> 3. Update Online Diary Subject Wise</h2>
+            <div class="form-group">
+                <label>Select Class:</label>
+                <select id="diaryClass">
+                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                    <option value="class9">Class 9</option><option value="class10">Class 10</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Subject:</label>
+                <select id="diarySubject">
+                    <option value="English">English</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Urdu">Urdu</option>
+                    <option value="Science">Science</option>
+                    <option value="Social Studies">Social Studies</option>
+                    <option value="Islamiyat">Islamiyat</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Biology">Biology</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Homework Details:</label>
+                <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
+            </div>
+            <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
+            <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
+        </div>
+
+        <div class="admin-box">
+            <h2><i class="fas fa-file-excel"></i> 4. Upload Exam Results via Excel File</h2>
+            <p style="color: #666; margin-bottom: 10px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein, bache roll number se online report card dekh sakein ge.</p>
+            
+            <div class="excel-info">
+                <strong>Excel Sheet Column Structure Rules:</strong><br>
+                Excel sheet ke pehle row (Header) me column headings bilkul aisi honi chahiye:<br>
+                <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Physics</code>, <code>Chemistry</code>, <code>Urdu</code>
+            </div>
+
+            <div class="form-group">
+                <label>Select Excel File (.xlsx / .xls):</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            </div>
+            <button class="admin-btn" style="background:#28a745;" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
+            <div id="resultAlert" class="success-alert">Excel Results Uploaded & Synchronized Successfully!</div>
+        </div>
+
+    </main>
+
+    <script>
+        // 1. Date Sheet Logic
+        function addDateSheet() {
+            let cls = document.getElementById("dsClass").value;
+            let date = document.getElementById("dsDate").value.trim();
+            let sub = document.getElementById("dsSubject").value.trim();
+            let time = document.getElementById("dsTime").value.trim();
+            let room = document.getElementById("dsRoom").value.trim();
+            if(!date || !sub) { alert("Date aur Subject lazmi likhein!"); return; }
+            let localDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : {};
+            if(!localDS[cls]) { localDS[cls] = []; }
+            localDS[cls].push({ date: date, subject: sub, time: time, room: room });
+            localStorage.setItem("localDateSheet", JSON.stringify(localDS));
+            document.getElementById("dsAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
+            document.getElementById("dsDate").value = ""; document.getElementById("dsSubject").value = "";
+        }
+
+        // 2. Fee System Logic
+        function updateFeeRecord() {
+            let roll = document.getElementById("feeRoll").value.trim();
+            let name = document.getElementById("feeName").value.trim();
+            let father = document.getElementById("feeFather").value.trim();
+            let cls = document.getElementById("feeClass").value.trim();
+            let payable = parseInt(document.getElementById("feePayable").value) || 0;
+            let month = document.getElementById("feeMonth").value.trim() || "Current Month";
+            let status = document.getElementById("feeStatusSelect").value;
+            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
+            let localFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : {};
+            let statusText = (status === "Paid") ? "All Dues Clear" : "Pending Payment";
+            localFees[roll] = {
+                name: name, father: father, class: cls, payable: payable, statusText: statusText,
+                history: [{ month: month, challan: "PHS-" + Math.floor(1000 + Math.random() * 9000), amount: "Rs. " + payable.toLocaleString(), status: status, canDownload: status === "Unpaid" ? true : false }]
+            };
+            localStorage.setItem("localFeeDB", JSON.stringify(localFees));
+            document.getElementById("feeAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
+            document.getElementById("feeRoll").value = ""; document.getElementById("feeName").value = "";
+        }
+
+        // 3. Subject Wise Diary Logic
+        function updateSubjectDiary() {
+            let cls = document.getElementById("diaryClass").value;
+            let subject = document.getElementById("diarySubject").value;
+            let content = document.getElementById("diaryContent").value.trim();
+            if(!content) { alert("Homework Details likhein!"); return; }
+            let localDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : {};
+            if(!localDiary[cls]) { localDiary[cls] = {}; }
+            localDiary[cls][subject] = content;
+            localStorage.setItem("localSubjectDiaryDB", JSON.stringify(localDiary));
+            document.getElementById("diaryAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
+            document.getElementById("diaryContent").value = "";
+        }
+
+    
+    
+    function uploadExcelResult() {
+    let fileInput = document.getElementById('excelFile');
+    if (fileInput.files.length === 0) {
+        alert("Meharbani karke pehle ek Excel file select karein!");
+        return;
+    }
+
+    let file = fileInput.files[0];
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+        let data = new Uint8Array(e.target.result);
+        let workbook = XLSX.read(data, { type: 'array' });
+        let firstSheetName = workbook.SheetNames[0];
+        let worksheet = workbook.Sheets[firstSheetName];
+        let jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        if(jsonData.length === 0) {
+            alert("Excel file khali hai!");
+            return;
+        }
+
+        let localResults = {};
+
+        jsonData.forEach(row => {
+            if(row.RollNo) {
+                let rollKey = row.RollNo.toString().trim();
+                let subjectsArray = [];
+                
+                // In columns ko normal subjects ki list me nahi daalna hai
+                let exclusionList = ['RollNo', 'Name', 'FatherName', 'Class', 'TotalMarks', 'ObtainedMarks', 'Grade'];
+
+                // Baqi bache hue tamam columns (G.K, Islamiyat, Drawing, Uniform, Attendance) ko auto-detect karega
+                Object.keys(row).forEach(key => {
+                    if(!exclusionList.includes(key)) {
+                        subjectsArray.push({
+                            name: key,
+                            obtained: row[key] !== undefined ? row[key].toString() : "0" // Marks ya grade text dono handle karega
+                        });
+                    }
+                });
+
+                // Excel se direct Total, Obtained aur Grade uthayein
+                localResults[rollKey] = {
+                    name: row.Name || "N/A",
+                    father: row.FatherName || "N/A",
+                    class: row.Class || "N/A",
+                    subjects: subjectsArray,
+                    totalMarks: row.TotalMarks ? row.TotalMarks.toString() : "0",
+                    obtainedMarks: row.ObtainedMarks ? row.ObtainedMarks.toString() : "0",
+                    grade: row.Grade || "N/A"
+                };
+            }
+        });
+
+        localStorage.setItem("localResultDB", JSON.stringify(localResults));
+        document.getElementById("resultAlert").style.display = "block";
+        setTimeout(() => { document.getElementById("resultAlert").style.display = "none"; }, 3000);
+        fileInput.value = "";
+    };
+    reader.readAsArrayBuffer(file);
+}    // 4. Excel File Processing Logic for Exams Result
+     </script>
+</body>
+</html>

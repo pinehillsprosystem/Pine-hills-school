@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report - Pine Hills School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .att-container { padding: 40px 0; max-width: 850px !important; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .back-btn:hover { color: var(--dark-blue); }
+        
+        /* Search Bar */
+        .search-box { background: var(--light-gray); padding: 30px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); text-align: center; margin-bottom: 30px; }
+        .search-box h2 { color: var(--dark-blue); margin-bottom: 15px; }
+        .input-group { display: flex; justify-content: center; gap: 10px; max-width: 400px; margin: 0 auto; }
+        .input-group input { flex: 1; padding: 12px 15px; border: 2px solid var(--light-blue); border-radius: 8px; font-size: 16px; outline: none; }
+        .input-group input:focus { border-color: var(--primary-blue); }
+        .search-btn { background: var(--primary-blue); color: var(--pure-white); border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .search-btn:hover { background: var(--dark-blue); }
+
+        /* Main Attendance Card */
+        .attendance-card { display: none; background: var(--pure-white); border: 2px solid var(--primary-blue); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .card-header { text-align: center; border-bottom: 2px dashed var(--primary-blue); padding-bottom: 15px; margin-bottom: 20px; }
+        .card-header h3 { color: var(--primary-blue); font-size: 24px; }
+        
+        /* Student Quick Info */
+        .student-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: var(--light-gray); padding: 15px; border-radius: 8px; font-size: 15px; }
+        .student-details strong { color: var(--dark-blue); }
+
+        /* Stats Counter Row */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; text-align: center; }
+        .stat-box { padding: 15px; border-radius: 8px; font-weight: 600; }
+        .stat-present { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .stat-absent { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .stat-percentage { background: var(--light-blue); color: var(--dark-blue); border: 1px solid rgba(0,86,179,0.1); }
+        .stat-number { display: block; font-size: 24px; font-weight: 700; margin-top: 5px; }
+
+        /* Calendar Sheet Design */
+        .calendar-title { color: var(--dark-blue); font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; background: var(--light-gray); padding: 15px; border-radius: 8px; }
+        .day-name { font-weight: 600; color: var(--text-muted); font-size: 13px; padding-bottom: 5px; border-bottom: 1px solid #ddd; }
+        .day-cell { padding: 10px 0; border-radius: 5px; font-weight: 600; font-size: 14px; background: var(--pure-white); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        /* Attendance Status Colors */
+        .p-status { background-color: #28a745 !important; color: white; }
+        .a-status { background-color: #dc3545 !important; color: white; }
+        .leave-status { background-color: #ffc107 !important; color: #333; }
+        .off-status { background-color: #e2e3e5 !important; color: #666; }
+
+        .legend { display: flex; justify-content: center; gap: 15px; margin-top: 20px; font-size: 13px; font-weight: 600; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 12px; height: 12px; border-radius: 3px; }
+
+        .error-msg { display: none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container navbar">
+            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
+            <div class="school-name">Pine Hills School</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#students">Students</a></li>
+                    <li><a href="index.html#parents">Parents</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container att-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        
+        <!-- Search Section -->
+        <div class="search-box">
+            <h2><i class="fas fa-user-check"></i> Track Student Attendance</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Bache ka Roll Number enter karke monthly attendance report check karein. (Demo: 1001 ya 1002)</p>
+            <div class="input-group">
+                <input type="text" id="attRollInput" placeholder="Enter Student Roll Number">
+                <button class="search-btn" onclick="checkAttendance()">Check Report</button>
+            </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="attError" class="error-msg">
+            <i class="fas fa-exclamation-circle"></i> Roll Number records mein nahi mila. Dobara koshish karein.
+        </div>
+
+        <!-- Attendance Report Dashboard Card -->
+        <div id="attCard" class="attendance-card">
+            <div class="card-header">
+                <h3>Pine Hills School</h3>
+                <p style="font-weight: 600; color: var(--text-muted);">Student Monthly Attendance Sheet</p>
+            </div>
+
+            <!-- Student Bio Data -->
+            <div class="student-details">
+                <div><strong>Student Name:</strong> <span id="attName"></span></div>
+                <div><strong>Father's Name:</strong> <span id="attFather"></span></div>
+                <div><strong>Class Section:</strong> <span id="attClass"></span></div>
+                <div><strong>Roll Number:</strong> <span id="attRoll"></span></div>
+            </div>
+
+            <!-- Stats Boxes Summary -->
+            <div class="stats-grid">
+                <div class="stat-box stat-present">Total Presents <span class="stat-number" id="totalPresents">0</span></div>
+                <div class="stat-box stat-absent">Total Absents <span class="stat-number" id="totalAbsents">0</span></div>
+                <div class="stat-box stat-percentage">Attendance Rate <span class="stat-number" id="attPercentage">0%</span></div>
+            </div>
+
+            <!-- Attendance Visual Sheet -->
+            <div class="calendar-title"><i class="fas fa-calendar-alt"></i> Current Month Status: <strong>May 2026</strong></div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Day Names Headers -->
+                <div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>
+                <!-- Days will render via JavaScript dynamically -->
+            </div>
+
+            <!-- Colors Legend Guide -->
+            <div class="legend">
+                <div class="legend-item"><div class="dot p-status"></div> Present</div>
+                <div class="legend-item"><div class="dot a-status"></div> Absent</div>
+                <div class="legend-item"><div class="dot leave-status"></div> Leave</div>
+                <div class="legend-item"><div class="dot off-status"></div> Sunday / Off</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Pine Hills School. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript logic for Attendance Simulation -->
+    <script>
+        // Attendance Demo Database
+        const attendanceDatabase = {
+            "1001": {
+                name: "Muhammad Ali", father: "Sajid Hussain", class: "Class 9",
+                // May Month Status (P=Present, A=Absent, L=Leave, Sun=Sunday)
+                days: ["P","P","P","P","P","P","Sun", "P","P","A","P","P","P","Sun", "P","P","P","P","L","P","Sun", "P","P","P","P","P","P","Sun", "P","P","P"]
+            },
+            "1002": {
+                name: "Ayesha Khan", father: "Kamran Khan", class: "Class 8",
+                days: ["P","A","P","P","P","P","Sun", "P","P","P","A","P","P","Sun", "A","P","P","P","P","P","Sun", "P","L","P","P","P","P","Sun", "P","P","A"]
+            }
+        };
+
+        function checkAttendance() {
+            const roll = document.getElementById("attRollInput").value.trim();
+            const card = document.getElementById("attCard");
+            const err = document.getElementById("attError");
+            
+            if (attendanceDatabase[roll]) {
+                err.style.display = "none";
+                const student = attendanceDatabase[roll];
+                
+                // Fill Student Information
+                document.getElementById("attName").innerText = student.name;
+                document.getElementById("attFather").innerText = student.father;
+                document.getElementById("attClass").innerText = student.class;
+                document.getElementById("attRoll").innerText = roll;
+                
+                // Clear and rebuild Calendar Sheet Cells
+                const grid = document.getElementById("calendarGrid");
+                // Reset calendar keeping day headers intact
+                grid.innerHTML = `<div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>`;
+                
+                let pCount = 0;
+                let aCount = 0;
+                
+                student.days.forEach((status, index) => {
+                    let dayNum = index + 1;
+                    let cssClass = "";
+                    
+                    if(status === "P") { cssClass = "p-status"; pCount++; }
+                    else if(status === "A") { cssClass = "a-status"; aCount++; }
+                    else if(status === "L") { cssClass = "leave-status"; }
+                    else if(status === "Sun") { cssClass = "off-status"; }
+                    
+                    let cell = `<div class="day-cell ${cssClass}">${dayNum}</div>`;
+                    grid.innerHTML += cell;
+                });
+                
+                // Calculate Data Statistics
+                let totalWorkingDays = pCount + aCount;
+                let percentage = ((pCount / totalWorkingDays) * 100).toFixed(0);
+                
+                document.getElementById("totalPresents").innerText = pCount;
+                document.getElementById("totalAbsents").innerText = aCount;
+                document.getElementById("attPercentage").innerText = percentage + "%";
+                
+                // Display Dashboard Card
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+                err.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

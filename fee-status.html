@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Status - Pine Hills School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .fee-container { padding: 40px 0; max-width: 850px !important; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .back-btn:hover { color: var(--dark-blue); }
+        
+        /* Search Box */
+        .search-box { background: var(--light-gray); padding: 30px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); text-align: center; margin-bottom: 30px; }
+        .search-box h2 { color: var(--dark-blue); margin-bottom: 15px; }
+        .input-group { display: flex; justify-content: center; gap: 10px; max-width: 400px; margin: 0 auto; }
+        .input-group input { flex: 1; padding: 12px 15px; border: 2px solid var(--light-blue); border-radius: 8px; font-size: 16px; outline: none; }
+        .input-group input:focus { border-color: var(--primary-blue); }
+        .search-btn { background: var(--primary-blue); color: var(--pure-white); border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .search-btn:hover { background: var(--dark-blue); }
+
+        /* Fee Portal Dashboard */
+        .fee-card { display: none; background: var(--pure-white); border: 2px solid var(--primary-blue); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .card-header { text-align: center; border-bottom: 2px dashed var(--primary-blue); padding-bottom: 15px; margin-bottom: 20px; }
+        .card-header h3 { color: var(--primary-blue); font-size: 24px; }
+        
+        /* Student Info Box */
+        .student-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: var(--light-gray); padding: 15px; border-radius: 8px; font-size: 15px; }
+        .student-details strong { color: var(--dark-blue); }
+
+        /* Summary Highlight Boxes */
+        .fee-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .summary-item { padding: 15px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 15px; }
+        .payable-box { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .status-clear-box { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .amount-highlight { display: block; font-size: 22px; font-weight: 700; margin-top: 5px; }
+
+        /* Fee Table Styling */
+        .fee-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .fee-table th, .fee-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; font-size: 15px; }
+        .fee-table th { background: var(--primary-blue); color: var(--pure-white); }
+        
+        /* Status Tags */
+        .badge { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 13px; display: inline-block; }
+        .badge-paid { background-color: #28a745; color: white; }
+        .badge-unpaid { background-color: #dc3545; color: white; }
+
+        .download-btn { background: none; border: 1px solid var(--primary-blue); color: var(--primary-blue); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; display: inline-block; }
+        .download-btn:hover { background: var(--primary-blue); color: white; }
+        .download-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: none; }
+
+        .error-msg { display: none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
+
+        /* 📱 Mobile CSS: Forcing Table to act like blocks (No Scroll) */
+        @media (max-width: 650px) {
+            .student-details, .fee-summary-grid { grid-template-columns: 1fr; gap: 10px; }
+            .fee-card { padding: 15px; }
+            
+            /* Table structure change to cards */
+            .fee-table, .fee-table thead, .fee-table tbody, .fee-table th, .fee-table td, .fee-table tr { 
+                display: block; 
+            }
+            .fee-table thead { 
+                display: none; /* Hide headings on mobile */
+            }
+            .fee-table tr {
+                background: #fdfdfd;
+                border: 1px solid var(--light-blue);
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            }
+            .fee-table td { 
+                border: none;
+                border-bottom: 1px dashed #eee; 
+                position: relative;
+                padding-left: 45%; 
+                text-align: right;
+                font-size: 14px;
+            }
+            .fee-table td:last-child {
+                border-bottom: none;
+            }
+            /* Adding dynamic headings before data */
+            .fee-table td::before { 
+                position: absolute;
+                left: 10px;
+                width: 40%; 
+                text-align: left;
+                font-weight: 700;
+                color: var(--dark-blue);
+            }
+            .fee-table td:nth-of-type(1)::before { content: "Month"; }
+            .fee-table td:nth-of-type(2)::before { content: "Challan No."; }
+            .fee-table td:nth-of-type(3)::before { content: "Amount"; }
+            .fee-table td:nth-of-type(4)::before { content: "Status"; }
+            .fee-table td:nth-of-type(5)::before { content: "Action"; }
+            
+            .download-btn { width: 100%; margin-top: 5px; text-align: center; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
+            <div class="school-name">Pine Hills School</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#students">Students</a></li>
+                    <li><a href="index.html#parents">Parents</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container fee-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        
+        <div class="search-box">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Student Fee Portal</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Bache ka Roll Number enter karke fees ka status aur purani history dekhain. (Demo: 1001 ya 1002)</p>
+            <div class="input-group">
+                <input type="text" id="feeRollInput" placeholder="Enter Student Roll Number">
+                <button class="search-btn" onclick="checkFeeStatus()">Check Fees</button>
+            </div>
+        </div>
+
+        <div id="feeError" class="error-msg">
+            <i class="fas fa-exclamation-circle"></i> Roll Number records mein nahi mila. Meharbani farma kar sahi roll number enter karein.
+        </div>
+
+        <div id="feeCard" class="fee-card">
+            <div class="card-header">
+                <h3>Pine Hills School</h3>
+                <p style="font-weight: 600; color: var(--text-muted);">Student Fee Account Statement</p>
+            </div>
+
+            <div class="student-details">
+                <div><strong>Student Name:</strong> <span id="feeName"></span></div>
+                <div><strong>Father's Name:</strong> <span id="feeFather"></span></div>
+                <div><strong>Class:</strong> <span id="feeClass"></span></div>
+                <div><strong>Roll Number:</strong> <span id="feeRoll"></span></div>
+            </div>
+
+            <div class="fee-summary-grid">
+                <div class="summary-item payable-box">
+                    Current Payable Dues 
+                    <span class="amount-highlight" id="payableAmount">Rs. 0</span>
+                </div>
+                <div class="summary-item status-clear-box">
+                    Account Status
+                    <span class="amount-highlight" id="accountStatus">Clear</span>
+                </div>
+            </div>
+
+            <h3 style="color: var(--dark-blue); font-size: 18px; margin-bottom: 10px;"><i class="fas fa-history"></i> Recent Fee Challan History</h3>
+            
+            <table class="fee-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Challan No.</th>
+                        <th>Due Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="feeTableBody">
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Pine Hills School. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const feeDatabase = {
+            "1001": {
+                name: "Muhammad Ali", father: "Sajid Hussain", class: "Class 9",
+                payable: 0,
+                statusText: "All Dues Clear",
+                history: [
+                    { month: "May 2026", challan: "PHS-9043", amount: "Rs. 4,500", status: "Paid", canDownload: false },
+                    { month: "April 2026", challan: "PHS-8122", amount: "Rs. 4,500", status: "Paid", canDownload: false },
+                    { month: "March 2026", challan: "PHS-7401", amount: "Rs. 4,500", status: "Paid", canDownload: false }
+                ]
+            },
+            "1002": {
+                name: "Ayesha Khan", father: "Kamran Khan", class: "Class 8",
+                payable: 4200,
+                statusText: "Pending Payment",
+                history: [
+                    { month: "May 2026", challan: "PHS-9043", amount: "Rs. 0", status: "unpaid", canDownload: false },
+                    { month: "April 2026", challan: "PHS-8123", amount: "Rs. 4,200", status: "Paid", canDownload: false },
+                    { month: "March 2026", challan: "PHS-7402", amount: "Rs. 4,200", status: "Paid", canDownload: false }
+                ]
+            }
+        };
+// Admin database filter verification
+let adminFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : null;
+if (adminFees) {
+    Object.keys(adminFees).forEach(rollKey => {
+        feeDatabase[rollKey] = adminFees[rollKey];
+    });
+}
+        function checkFeeStatus() {
+            const roll = document.getElementById("feeRollInput").value.trim();
+            const card = document.getElementById("feeCard");
+            const err = document.getElementById("feeError");
+            
+            if (feeDatabase[roll]) {
+                err.style.display = "none";
+                const student = feeDatabase[roll];
+                
+                document.getElementById("feeName").innerText = student.name;
+                document.getElementById("feeFather").innerText = student.father;
+                document.getElementById("feeClass").innerText = student.class;
+                document.getElementById("feeRoll").innerText = roll;
+                
+                const payableBox = document.getElementById("payableAmount");
+                const statusBox = document.getElementById("accountStatus");
+                const statusParentBox = statusBox.parentElement;
+                
+                payableBox.innerText = "Rs. " + student.payable.toLocaleString();
+                statusBox.innerText = student.statusText;
+                
+                if(student.payable > 0) {
+                    statusParentBox.className = "summary-item";
+                    statusParentBox.style.backgroundColor = "#f8d7da";
+                    statusParentBox.style.color = "#721c24";
+                    statusParentBox.style.border = "1px solid #f5c6cb";
+                } else {
+                    statusParentBox.className = "summary-item status-clear-box";
+                    statusParentBox.style.backgroundColor = "#d4edda";
+                    statusParentBox.style.color = "#155724";
+                    statusParentBox.style.border = "1px solid #c3e6cb";
+                }
+
+                const tableBody = document.getElementById("feeTableBody");
+                tableBody.innerHTML = "";
+                
+                student.history.forEach(item => {
+                    const statusBadge = item.status === "Paid" ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Unpaid</span>';
+                    const actionBtn = item.canDownload ? '<button class="download-btn"><i class="fas fa-file-download"></i> Print Challan</button>' : '<button class="download-btn" disabled><i class="fas fa-check"></i> Receipt</button>';
+                    
+                    const row = `<tr>
+                        <td>${item.month}</td>
+                        <td>${item.challan}</td>
+                        <td>${item.amount}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtn}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+                
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+                err.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

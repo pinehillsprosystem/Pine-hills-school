@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Diary - Pine Hills School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .diary-container { padding: 40px 0; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .back-btn:hover { color: var(--dark-blue); }
+        
+        .date-badge { display: inline-block; background: var(--primary-blue); color: var(--pure-white); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 25px; }
+        
+        /* Class Wise Layout */
+        .diary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+        .class-box { background: var(--light-gray); padding: 25px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 5px rgba(0,0,0,0.01); }
+        .class-box h2 { color: var(--dark-blue); font-size: 22px; margin-bottom: 15px; border-bottom: 2px solid var(--light-blue); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .class-box h2 span { font-size: 14px; color: var(--primary-blue); background: var(--pure-white); padding: 2px 10px; border-radius: 10px; }
+        
+        /* Subjects Style */
+        .subject-container { display: flex; flex-direction: column; }
+        .subject-item { margin-bottom: 15px; }
+        .subject-name { font-weight: 600; color: var(--primary-blue); display: block; margin-bottom: 3px; font-size: 15px; }
+        .homework-text { font-size: 14px; color: var(--text-dark); background: var(--pure-white); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--dark-blue); white-space: pre-line; }
+        
+        .note-box { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-top: 30px; font-size: 14px; border-left: 4px solid #ffc107; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
+            <div class="school-name">Pine Hills School</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#students">Students</a></li>
+                    <li><a href="index.html#parents">Parents</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container diary-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        
+        <h1 style="color: var(--dark-blue); margin-bottom: 5px;"><i class="fas fa-book"></i> Daily Student Diary</h1>
+        <div class="date-badge">Today's Diary: 30 May 2026</div>
+
+        <div class="diary-grid">
+            
+            <div class="class-box">
+                <h2>CLASS 1ST <span>Class 1</span></h2>
+                <div id="box-class1" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class1-English" class="homework-text">Read Page No. 24. Write meanings of difficult words on notebook.</p></div>
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class1-Mathematics" class="homework-text">Do Exercise 3A, Question No. 1 to 5 on textbook.</p></div>
+                    <div class="subject-item"><span class="subject-name">Urdu</span><p id="class1-Urdu" class="homework-text">Sabaq "Achi Aadatein" ki parhai karein aur amla ki tayari karein.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 2ND <span>Class 2</span></h2>
+                <div id="box-class2" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Science</span><p id="class2-Science" class="homework-text">Draw diagram of "Water Cycle" on your practical journal.</p></div>
+                    <div class="subject-item"><span class="subject-name">Social Studies</span><p id="class2-SocialStudies" class="homework-text">Learn Question Answer of Chapter 2 (Geography of Pakistan).</p></div>
+                    <div class="subject-item"><span class="subject-name">Islamiyat</span><p id="class2-Islamiyat" class="homework-text">Surah Al-Asr tarjuma ke sath yaad karke aani hai.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 3RD <span>Class 3</span></h2>
+                <div id="box-class3" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class3-Mathematics" class="homework-text">Solve Homework worksheet question 1 to 4.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class3-English" class="homework-text">Write an essay on "A Rainy Day" (150 words).</p></div>
+                    <div class="subject-item"><span class="subject-name">Computer Science</span><p id="class3-ComputerScience" class="homework-text">Read Chapter 3 (Input & Output Devices) for class quiz.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 4TH <span>Class 4</span></h2>
+                <div id="box-class4" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class4-Mathematics" class="homework-text">Table of 12 to 15 write and learn.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class4-English" class="homework-text">Do reading of chapter 4.</p></div>
+                    <div class="subject-item"><span class="subject-name">Science</span><p id="box-class4-Science" class="homework-text">Read page 45 thoroughly.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 5TH <span>Class 5</span></h2>
+                <div id="box-class5" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class5-Mathematics" class="homework-text">Ex 5.1 complete on notebook.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class5-English" class="homework-text">Learn definitions of Noun and Pronoun.</p></div>
+                    <div class="subject-item"><span class="subject-name">Urdu</span><p id="class5-Urdu" class="homework-text">Sabaq 5 ke alfaz mani yaad karein.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 6TH <span>Class 6</span></h2>
+                <div id="box-class6" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class6-Mathematics" class="homework-text">Solve Exercise 2B question 1 and 2.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class6-English" class="homework-text">Write a application for sick leave.</p></div>
+                    <div class="subject-item"><span class="subject-name">Science</span><p id="class6-Science" class="homework-text">Learn fill in the blanks of chapter 2.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 7TH <span>Class 7</span></h2>
+                <div id="box-class7" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class7-Mathematics" class="homework-text">Practice Ex 6.1 on rough register.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class7-English" class="homework-text">Complete summary of Poem 'Rain'.</p></div>
+                    <div class="subject-item"><span class="subject-name">Computer Science</span><p id="class7-ComputerScience" class="homework-text">Learn short questions of Chapter 1.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 8TH <span>Class 8</span></h2>
+                <div id="box-class8" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class8-Mathematics" class="homework-text">Ex 8.2 Q1 to Q4 on geometry register.</p></div>
+                    <div class="subject-item"><span class="subject-name">English</span><p id="class8-English" class="homework-text">Prepare for the grammar test tomorrow.</p></div>
+                    <div class="subject-item"><span class="subject-name">Science</span><p id="class8-Science" class="homework-text">Read Chapter 5 chemical reactions.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 9TH <span>Class 9</span></h2>
+                <div id="box-class9" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Physics</span><p id="class9-Physics" class="homework-text">Learn Numerical 4.1 to 4.3.</p></div>
+                    <div class="subject-item"><span class="subject-name">Chemistry</span><p id="class9-Chemistry" class="homework-text">Write electronic configuration of first 10 elements.</p></div>
+                    <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class9-Mathematics" class="homework-text">Practice Exercise 1.4 full.</p></div>
+                </div>
+            </div>
+
+            <div class="class-box">
+                <h2>CLASS 10TH <span>Class 10</span></h2>
+                <div id="box-class10" class="subject-container">
+                    <div class="subject-item"><span class="subject-name">Physics</span><p id="class10-Physics" class="homework-text">Solve Numerical problems 5.1 to 5.4 from Chapter 5.</p></div>
+                    <div class="subject-item"><span class="subject-name">Chemistry</span><p id="class10-Chemistry" class="homework-text">Learn the chemical formula and structure of Organic Compounds taught today.</p></div>
+                    <div class="subject-item"><span class="subject-name">Biology</span><p id="class10-Biology" class="homework-text">Bio: Complete labeling of Human Heart.</p></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="note-box">
+            <strong><i class="fas fa-exclamation-triangle"></i> Parents Note:</strong> Meharbani farma kar check karein ke bachon ne apna diary ka kaam mukammal kiya hai ya nahi.thank you!.
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Pine Hills School. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            let adminDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : null;
+            if (adminDiary) {
+                // Outer loop har class par chalega
+                Object.keys(adminDiary).forEach(clsKey => {
+                    let classSubjects = adminDiary[clsKey];
+                    
+                    // Inner loop us class ke subjects par chalega
+                    Object.keys(classSubjects).forEach(subKey => {
+                        // Sahi container card check karne ke liye string remove spaces
+                        let elementId = clsKey + "-" + subKey.replace(/\s+/g, '');
+                        let targetParagraph = document.getElementById(elementId);
+                        
+                        if (targetParagraph) {
+                            // Agar subject pehle se maujood hai to sirf text update karo
+                            targetParagraph.innerHTML = `<i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}`;
+                            targetParagraph.style.backgroundColor = "#f4f9ff";
+                        } else {
+                            // DYNAMIC FIX: Agar 3 subjects se upar naya subject hai, to uska naya block khud banayein!
+                            let classBoxContainer = document.getElementById("box-" + clsKey);
+                            if(classBoxContainer) {
+                                let newSubjectHTML = `
+                                    <div class="subject-item">
+                                        <span class="subject-name">${subKey}</span>
+                                        <p id="${elementId}" class="homework-text" style="background-color: #f4f9ff;"><i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}</p>
+                                    </div>
+                                `;
+                                classBoxContainer.insertAdjacentHTML('beforeend', newSubjectHTML);
+                            }
+                        }
+                    });
+                });
+            }
+        };
+    </script>
+</body>
+</html>

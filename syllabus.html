@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Sheet & Syllabus - Pine Hills School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .syllabus-container { padding: 40px 0; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .back-btn:hover { color: var(--dark-blue); }
+        
+        .content-box { background: var(--light-gray); padding: 30px; border-radius: 10px; margin-bottom: 40px; border: 1px solid rgba(0,0,0,0.05); }
+        .content-box h2 { color: var(--dark-blue); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Class Selector Styling */
+        .selector-box { background: var(--pure-white); padding: 20px; border-radius: 8px; border: 1px solid #e6f0fa; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .selector-box label { font-weight: 600; color: var(--dark-blue); font-size: 16px; }
+        .class-select { padding: 10px 15px; border: 2px solid var(--light-blue); border-radius: 6px; font-size: 16px; outline: none; min-width: 200px; color: #333; cursor: pointer; }
+        .class-select:focus { border-color: var(--primary-blue); }
+
+        /* Table Styling */
+        .custom-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--pure-white); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .custom-table th, .custom-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e6f0fa; }
+        .custom-table th { background-color: var(--primary-blue); color: var(--pure-white); font-weight: 600; }
+        .custom-table tr:hover { background-color: var(--light-blue); }
+
+        /* Dynamic Heading Alert */
+        .current-class-heading { font-size: 18px; font-weight: 700; color: var(--primary-blue); margin-top: 10px; display: inline-block; background: #e6f0fa; padding: 5px 15px; border-radius: 20px; }
+
+        /* 📱 Mobile Responsive CSS (No Scroll Card System) */
+        @media (max-width: 650px) {
+            .content-box { padding: 15px; }
+            .content-box h2 { font-size: 18px; }
+            .selector-box { padding: 15px; gap: 10px; }
+            .class-select { width: 100%; }
+
+            .custom-table, .custom-table thead, .custom-table tbody, .custom-table th, .custom-table td, .custom-table tr { 
+                display: block; 
+            }
+            .custom-table thead { 
+                display: none; /* Mobile par main headers hide ho jayein ge */
+            }
+            .custom-table tr {
+                background: var(--pure-white);
+                border: 1px solid #e6f0fa;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            }
+            .custom-table td { 
+                border: none;
+                border-bottom: 1px solid #f4f9ff; 
+                position: relative;
+                padding-left: 42%; 
+                text-align: right;
+                font-size: 14px;
+            }
+            .custom-table td:last-child {
+                border-bottom: none;
+            }
+            /* Label injection for mobile */
+            .custom-table td::before { 
+                position: absolute;
+                left: 10px;
+                width: 38%; 
+                text-align: left;
+                font-weight: 700;
+                color: var(--primary-blue);
+            }
+            .custom-table td:nth-of-type(1)::before { content: "Date & Day"; }
+            .custom-table td:nth-of-type(2)::before { content: "Subject"; }
+            .custom-table td:nth-of-type(3)::before { content: "Timing"; }
+            .custom-table td:nth-of-type(4)::before { content: "Class Room"; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
+            <div class="school-name">Pine Hills School</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#students">Students</a></li>
+                    <li><a href="index.html#parents">Parents</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container syllabus-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        
+        <div class="content-box">
+            <h2><i class="fas fa-calendar-alt"></i> Mid-Term Examination Date Sheet</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Apni class select karein taake aapko sahi date sheet nazar aa sakay.</p>
+            
+            <div class="selector-box">
+                <label for="classSelect"><i class="fas fa-filter"></i> Select Your Class:</label>
+                <select id="classSelect" class="class-select" onchange="loadDateSheet()">
+                    <option value="kg1">KG 1</option>
+                    <option value="kg2">KG 2</option>
+                    <option value="class1">Class 1</option>
+                    <option value="class2">Class 2</option>
+                    <option value="class3">Class 3</option>
+                    <option value="class4">Class 4</option>
+                    <option value="class5">Class 5</option>
+                    <option value="class6">Class 6</option>
+                    <option value="class7">Class 7</option>
+                    <option value="class8">Class 8</option>
+                </select>
+                <div>
+                    <span class="current-class-heading" id="displayClassName">KG 1 Date Sheet</span>
+                </div>
+            </div>
+            
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date & Day</th>
+                        <th>Subject</th>
+                        <th>Timing</th>
+                        <th>Class Room</th>
+                    </tr>
+                </thead>
+                <tbody id="dateSheetBody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Pine Hills School. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Yahan KG1 se lekar 8th tak ka local system database hai. Aap jab chahein isme paper details badal sakte hain.
+        const dateSheetDatabase = {
+            "kg1": [
+                { date: "01 June (Monday)", subject: "English Oral & Rhymes", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R1" },
+                { date: "03 June (Wednesday)", subject: "Mathematics (Counting)", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R1" },
+                { date: "05 June (Friday)", subject: "Drawing & Art", time: "09:00 AM - 10:30 AM", room: "Nursery Block - R1" }
+            ],
+            "kg2": [
+                { date: "01 June (Monday)", subject: "English Written", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R2" },
+                { date: "03 June (Wednesday)", subject: "Maths & Shapes", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R2" },
+                { date: "05 June (Friday)", subject: "Urdu Oral", time: "09:00 AM - 10:30 AM", room: "Nursery Block - R2" }
+            ],
+            "class1": [
+                { date: "01 June (Monday)", subject: "English Language", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 01" },
+                { date: "03 June (Wednesday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 01" },
+                { date: "05 June (Friday)", subject: "General Knowledge", time: "08:30 AM - 11:00 AM", room: "Junior Wing - Room 01" },
+                { date: "08 June (Monday)", subject: "Urdu", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 02" }
+            ],
+            "class2": [
+                { date: "01 June (Monday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 03" },
+                { date: "03 June (Wednesday)", subject: "English Lit.", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 03" },
+                { date: "05 June (Friday)", subject: "Islamiyat", time: "08:30 AM - 11:00 AM", room: "Junior Wing - Room 03" },
+                { date: "08 June (Monday)", subject: "Urdu", time: "08:30 AM - 11:30 AM", room: "Junior Wing - Room 03" }
+            ],
+            "class3": [
+                { date: "01 June (Monday)", subject: "Science", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 10" },
+                { date: "03 June (Wednesday)", subject: "Urdu", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 10" },
+                { date: "05 June (Friday)", subject: "Computer Studies", time: "08:30 AM - 11:00 AM", room: "Computer Lab" },
+                { date: "08 June (Monday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 10" }
+            ],
+            "class4": [
+                { date: "01 June (Monday)", subject: "English", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 12" },
+                { date: "03 June (Wednesday)", subject: "Social Studies", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 12" },
+                { date: "05 June (Friday)", subject: "Islamiyat", time: "08:30 AM - 11:00 AM", room: "Main Block - Room 12" },
+                { date: "08 June (Monday)", subject: "Science", time: "08:30 AM - 11:30 AM", room: "Main Block - Room 12" }
+            ],
+            "class5": [
+                { date: "01 June (Monday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Middle Wing - Room 20" },
+                { date: "03 June (Wednesday)", subject: "Science", time: "08:30 AM - 11:30 AM", room: "Middle Wing - Room 20" },
+                { date: "05 June (Friday)", subject: "English Language", time: "08:30 AM - 11:00 AM", room: "Middle Wing - Room 20" },
+                { date: "08 June (Monday)", subject: "Social Studies", time: "08:30 AM - 11:30 AM", room: "Middle Wing - Room 21" }
+            ],
+            "class6": [
+                { date: "01 June (Monday)", subject: "History / Geography", time: "08:30 AM - 11:30 AM", room: "Block B - Room 201" },
+                { date: "03 June (Wednesday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Block B - Room 201" },
+                { date: "05 June (Friday)", subject: "Computer Science", time: "08:30 AM - 11:00 AM", room: "Computer Lab 2" },
+                { date: "08 June (Monday)", subject: "General Science", time: "08:30 AM - 11:30 AM", room: "Block B - Room 202" }
+            ],
+            "class7": [
+                { date: "01 June (Monday)", subject: "General Science", time: "08:30 AM - 11:30 AM", room: "Block B - Room 204" },
+                { date: "03 June (Wednesday)", subject: "English Literature", time: "08:30 AM - 11:30 AM", room: "Block B - Room 204" },
+                { date: "05 June (Friday)", subject: "Urdu", time: "08:30 AM - 11:00 AM", room: "Block B - Room 204" },
+                { date: "08 June (Monday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Block B - Hall A" }
+            ],
+            "class8": [
+                { date: "01 June (Monday)", subject: "English Language & Lit.", time: "08:30 AM - 11:30 AM", room: "Block A - Room 102" },
+                { date: "03 June (Wednesday)", subject: "Mathematics", time: "08:30 AM - 11:30 AM", room: "Block A - Room 102" },
+                { date: "05 June (Friday)", subject: "General Science", time: "08:30 AM - 11:00 AM", room: "Block B - Hall 1" },
+                { date: "08 June (Monday)", subject: "Urdu / Islamiyat", time: "08:30 AM - 11:30 AM", room: "Block A - Room 104" }
+            ]
+        };
+
+// Default chalne se pehle check karega ke madam ne admin panel se koi nayi entry to nahi daali
+let adminDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : null;
+if (adminDS) {
+    // Agar admin ne naya data dala hai to default database ko replace/merge kar do
+    Object.keys(adminDS).forEach(clsKey => {
+        dateSheetDatabase[clsKey] = adminDS[clsKey];
+    });
+}
+
+        // Date Sheet Render karne ka function
+        function loadDateSheet() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectElement = document.getElementById("classSelect");
+            const classText = selectElement.options[selectElement.selectedIndex].text;
+            
+            // Update upper label heading
+            document.getElementById("displayClassName").innerText = classText + " Date Sheet";
+            
+            const tableBody = document.getElementById("dateSheetBody");
+            tableBody.innerHTML = ""; // Clear existing records
+            
+            const schedule = dateSheetDatabase[selectedClass];
+            
+            if (schedule) {
+                schedule.forEach(item => {
+                    const row = `<tr>
+                        <td><strong>${item.date}</strong></td>
+                        <td>${item.subject}</td>
+                        <td>${item.time}</td>
+                        <td>${item.room}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            }
+        }
+
+        // Default running state when page fires up
+        window.onload = function() {
+            loadDateSheet();
+        };
+    </script>
+</body>
+</html>
