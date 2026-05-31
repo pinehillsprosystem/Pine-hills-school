@@ -50,7 +50,7 @@
         .score-summary-table td { padding: 10px 15px; font-size: 14px; border: 1px solid #ddd; }
         .score-summary-table tr.highlight-row { background-color: #f1f5f9; font-weight: 700; color: #1a365d; }
         
-        /* Grade Badge Box: White Background, Black Text, Navy Border */
+        /* Grade Badge Box */
         .grade-badge-box { background: #ffffff; color: #000000; text-align: center; padding: 20px; border-radius: 6px; border: 2px solid #1a365d; box-sizing: border-box; }
         .grade-badge-box .g-lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #555555; font-weight: 700; }
         .grade-badge-box .g-val { font-size: 48px; font-weight: 900; margin: 5px 0; line-height: 1; color: #000000; }
@@ -95,11 +95,9 @@
             body * { visibility: hidden; background: none !important; color: #000000 !important; }
             header, footer, .back-btn, .search-box, .error-msg, .action-box { display: none !important; }
             
-            /* Pure Page Sizing Controls */
             html, body { height: 99%; margin: 0 !important; padding: 0 !important; page-break-inside: avoid; }
             .result-container { padding: 0; max-width: 100% !important; margin: 0; width: 100%; }
             
-            /* Compressed layout parameters for printing */
             .result-card { 
                 display: block !important; 
                 visibility: visible; 
@@ -112,7 +110,6 @@
             }
             .result-card * { visibility: visible; }
             
-            /* Tightening the white spaces to prevent second page spillover */
             .result-header { margin-bottom: 15px !important; padding-bottom: 10px !important; }
             .result-header h3 { font-size: 26px !important; }
             .student-profile-box { padding: 12px 15px !important; margin-bottom: 15px !important; }
@@ -120,24 +117,20 @@
             .info-item { flex-direction: row !important; font-size: 10pt !important; padding-bottom: 2px !important; }
             .info-item strong { width: 110px !important; }
             
-            /* Table compressed row height */
             .marks-table { margin-bottom: 15px !important; }
             .marks-table th { padding: 8px 12px !important; font-size: 11px !important; background: #1a365d !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .marks-table td { padding: 6px 12px !important; font-size: 11px !important; }
             
-            /* Summary & Badge Compression */
             .summary-container { display: grid !important; grid-template-columns: 2fr 1fr !important; gap: 15px !important; margin-bottom: 15px !important; }
             .score-summary-table td { padding: 6px 12px !important; font-size: 11px !important; }
             .grade-badge-box { padding: 10px !important; border: 2px solid #1a365d !important; background: #ffffff !important; color: #000000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .grade-badge-box .g-val { font-size: 32px !important; margin: 2px 0 !important; color: #000000 !important; }
             
-            /* Bottom section adjustments */
             .office-notes { margin-bottom: 20px !important; padding-top: 10px !important; font-size: 10px !important; }
             .signature-section { display: flex !important; flex-direction: row !important; justify-content: space-between !important; margin-top: 45px !important; gap: 15px !important; }
             .sig-block { flex: 1 !important; max-width: none !important; }
             .sig-title { font-size: 11px !important; }
 
-            /* Dynamic colors force engine */
             .result-header .report-title { background: #1a365d !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .marks-table tr:nth-child(even) td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .score-summary-table tr.highlight-row { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -168,7 +161,7 @@
             <p style="color: var(--text-muted); margin-bottom: 20px;">Enter your official roll number below to access your dynamic mark sheet report card.</p>
             <div class="input-group">
                 <input type="text" id="rollNumber" placeholder="Enter Roll Number (e.g. 1001)">
-                <button class="search-btn" onclick="searchResult()">Search Result</button>
+                <button class="search-btn" id="searchBtn" onclick="searchResult()">Search Result</button>
             </div>
         </div>
 
@@ -202,7 +195,7 @@
                     </tr>
                 </thead>
                 <tbody id="marksTableBody">
-                    </tbody>
+                </tbody>
             </table>
 
             <div class="summary-container">
@@ -258,97 +251,101 @@
         </div>
     </footer>
 
-    <script>
-        const demoStudentsDatabase = {
-            "1001": {
-                name: "Muhammad Ali",
-                father: "Sajid Hussain",
-                class: "Class 9",
-                subjects: [
-                    { name: "English Language & Lit.", obtained: "85" },
-                    { name: "Mathematics Core", obtained: "95" },
-                    { name: "Physics", obtained: "68" },
-                    { name: "Chemistry Lab/Theory", obtained: "62" },
-                    { name: "Urdu Language", obtained: "74" },
-                    { name: "General Knowledge (G.K)", obtained: "88" },
-                    { name: "Islamiyat Studies", obtained: "90" },
-                    { name: "Art & Drawing Portfolio", obtained: "A Grade" },
-                    { name: "School Uniform Discipline", obtained: "Excellent" },
-                    { name: "Attendance Ratio", obtained: "95%" }
-                ],
-                obtainedMarks: "562",
-                totalMarks: "650",
-                grade: "A+"
-            },
-            "1002": {
-                name: "Ayesha Khan",
-                father: "Kamran Khan",
-                class: "Class 8",
-                subjects: [
-                    { name: "English Language & Lit.", obtained: "72" },
-                    { name: "Mathematics Core", obtained: "55" },
-                    { name: "General Science Concepts", obtained: "80" },
-                    { name: "Urdu Language", obtained: "64" },
-                    { name: "General Knowledge (G.K)", obtained: "70" },
-                    { name: "Islamiyat Studies", obtained: "82" },
-                    { name: "Art & Drawing Portfolio", obtained: "B Grade" },
-                    { name: "School Uniform Discipline", obtained: "Good" },
-                    { name: "Attendance Ratio", obtained: "88%" }
-                ],
-                obtainedMarks: "423",
-                totalMarks: "600",
-                grade: "A"
-            }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Pine Hills School Credentials Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "310029732655",
+            appId: "1:310029732655:web:37edd331495239524cefda"
         };
 
-        function searchResult() {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Core dynamic result search handler mapping
+        window.searchResult = async function() {
             const inputRoll = document.getElementById("rollNumber").value.trim();
             const resultCard = document.getElementById("resultCard");
             const errorDisplay = document.getElementById("errorDisplay");
-            
-            if(!inputRoll) { alert("Please provide a valid Roll Number entry to parse!"); return; }
+            const searchBtn = document.getElementById("searchBtn");
 
-            let excelDB = localStorage.getItem("localResultDB") ? JSON.parse(localStorage.getItem("localResultDB")) : null;
-            let student = null;
-
-            if (excelDB && excelDB[inputRoll]) {
-                student = excelDB[inputRoll];
-            } else if (demoStudentsDatabase[inputRoll]) {
-                student = demoStudentsDatabase[inputRoll];
+            if (!inputRoll) { 
+                alert("Please provide a valid Roll Number entry!"); 
+                return; 
             }
 
-            if (student) {
-                errorDisplay.style.display = "none";
-                
-                document.getElementById("resName").innerText = student.name;
-                document.getElementById("resFather").innerText = student.father;
-                document.getElementById("resClass").innerText = student.class;
-                document.getElementById("resRoll").innerText = inputRoll;
-                
-                const tableBody = document.getElementById("marksTableBody");
-                tableBody.innerHTML = "";
-                
-                student.subjects.forEach(sub => {
-                    const row = `<tr>
-                        <td><strong>${sub.name}</strong></td>
-                        <td style="text-align: right;" class="marks-val">${sub.obtained}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                });
-                
-                document.getElementById("resTotal").innerText = student.obtainedMarks + " / " + student.totalMarks;
-                
-                let finalObt = parseFloat(student.obtainedMarks) || 0;
-                let finalTot = parseFloat(student.totalMarks) || 1;
-                let pct = ((finalObt / finalTot) * 100).toFixed(1);
-                
-                document.getElementById("resPercentage").innerText = isNaN(pct) || pct <= 0 ? "N/A" : pct + "%";
-                document.getElementById("resGrade").innerText = student.grade;
-                
-                resultCard.style.display = "block";
-            } else {
-                resultCard.style.display = "none";
-                errorDisplay.style.display = "block";
+            // Setting searching loader layout status
+            searchBtn.innerText = "Searching...";
+            searchBtn.disabled = true;
+            errorDisplay.style.display = "none";
+            resultCard.style.display = "none";
+
+            try {
+                // Tracking document path saved matching excel uploads mapping
+                const docRef = doc(db, "studentResults", inputRoll);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const studentData = docSnap.data();
+
+                    // Filling up user header metadata details
+                    document.getElementById("resName").innerText = studentData.Name || studentData.name || "---";
+                    document.getElementById("resRoll").innerText = inputRoll;
+                    document.getElementById("resFather").innerText = studentData.FatherName || studentData.father || "---";
+                    document.getElementById("resClass").innerText = studentData.Class || studentData.class || "---";
+                    
+                    // Dynamic score metadata rendering parsing
+                    const tableBody = document.getElementById("marksTableBody");
+                    tableBody.innerHTML = "";
+
+                    // Exclude standard core sheet data keys to target custom subject streams
+                    const structuralKeys = ["RollNo", "rollNo", "Name", "name", "FatherName", "father", "Class", "class", "ObtainedMarks", "obtainedMarks", "TotalMarks", "totalMarks", "Grade", "grade"];
+                    
+                    Object.keys(studentData).forEach(key => {
+                        if (!structuralKeys.includes(key)) {
+                            const row = `<tr>
+                                <td><strong>${key}</strong></td>
+                                <td style="text-align: right;" class="marks-val">${studentData[key]}</td>
+                            </tr>`;
+                            tableBody.innerHTML += row;
+                        }
+                    });
+
+                    // Set standard aggregate calculations mapping data elements
+                    const obtMarks = studentData.ObtainedMarks || studentData.obtainedMarks || "0";
+                    const totMarks = studentData.TotalMarks || studentData.totalMarks || "0";
+                    document.getElementById("resTotal").innerText = `${obtMarks} / ${totMarks}`;
+
+                    // Auto calculating percentage logic safely
+                    const finalObt = parseFloat(obtMarks) || 0;
+                    const finalTot = parseFloat(totMarks) || 0;
+                    if (finalTot > 0) {
+                        const pct = ((finalObt / finalTot) * 100).toFixed(1);
+                        document.getElementById("resPercentage").innerText = pct + "%";
+                    } else {
+                        document.getElementById("resPercentage").innerText = "N/A";
+                    }
+
+                    // Render letter grade mapping output
+                    document.getElementById("resGrade").innerText = studentData.Grade || studentData.grade || "---";
+
+                    // Showing complete card component view
+                    resultCard.style.display = "block";
+                } else {
+                    errorDisplay.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Firebase fetch error processing spreadsheet profile:", err);
+                alert("Database server connection timeout! Please try again.");
+            } finally {
+                searchBtn.innerText = "Search Result";
+                searchBtn.disabled = false;
             }
         }
     </script>
