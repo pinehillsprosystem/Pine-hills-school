@@ -51,14 +51,18 @@
 
         .error-msg { display: none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
 
-        /* 📱 Mobile CSS: Forcing Table to act like blocks (No Scroll) */
+        /* 📱 Fixed Mobile Responsive CSS */
         @media (max-width: 650px) {
             .student-details, .fee-summary-grid { grid-template-columns: 1fr; gap: 10px; }
             .fee-card { padding: 15px; }
+            .input-group { flex-direction: column; width: 100%; }
+            .input-group input, .search-btn { width: 100%; box-sizing: border-box; }
             
-            /* Table cleanup for mobile */
-            .fee-table { width: 100%; border: none; }
+            /* Table formatting fix for mobile views */
+            .fee-table { width: 100%; display: block; }
             .fee-table thead { display: none; }
+            .fee-table tbody { display: block; width: 100%; }
+            
             .fee-table tr { 
                 display: block; 
                 background: #fff; 
@@ -66,41 +70,49 @@
                 border-radius: 10px; 
                 margin-bottom: 15px; 
                 padding: 12px; 
+                box-sizing: border-box;
             }
             
             .fee-table td { 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                padding: 8px 0; 
-                border-bottom: 1px solid #f8f9fa;
+                display: flex !important; 
+                justify-content: space-between !important; 
+                align-items: center !important; 
+                padding: 10px 0 !important; 
+                border-bottom: 1px solid #f1f5f9 !important;
                 font-size: 14px;
-                text-align: right; 
+                text-align: right;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .fee-table td:last-child {
+                border-bottom: none !important;
             }
             
+            /* Left aligned headings */
             .fee-table td::before { 
                 content: attr(data-label);
                 font-weight: 700;
                 color: #1a365d;
                 text-align: left;
-                margin-right: 10px;
+                margin-right: 15px;
+                flex-shrink: 0;
             }
             
+            /* Full width button behavior on small screens */
             .download-btn { 
-                width: 100%; 
-                margin-top: 8px; 
-                padding: 10px; 
-                font-size: 14px; 
+                width: auto;
+                max-width: 150px;
+                padding: 8px 12px; 
+                font-size: 13px; 
                 justify-content: center;
             }
         }
 
-        /* ==========================================================================
-           🖨️ SMART AUTOMATIC PRINT STYLING (Sirf print out nikalte waqt chalay gi)
-           ========================================================================== */
+        /* 🖨️ Print Styles */
         @media print {
             header, footer, .back-btn, .search-box, .download-btn, th:last-child, td:last-child {
-                display: none !important; /* Print mein se buttons aur navbar gayab ho jayen ge */
+                display: none !important; 
             }
             body { background: white; color: black; padding: 0; margin: 0; }
             .fee-container { max-width: 100% !important; width: 100% !important; padding: 0; }
@@ -264,8 +276,6 @@
                 
                 student.history.forEach(item => {
                     const statusBadge = item.status === "Paid" ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Unpaid</span>';
-                    
-                    // Button par click krne se "triggerPrintReceipt()" function chalega
                     const actionBtn = `<button class="download-btn" onclick="triggerPrintReceipt()"><i class="fas fa-print"></i> Print Slip</button>`;
                     
                     const row = `<tr>
@@ -285,7 +295,6 @@
             }
         }
 
-        // Automatic Printing System Function
         function triggerPrintReceipt() {
             window.print();
         }
