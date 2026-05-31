@@ -8,10 +8,61 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .admin-container { padding: 40px 0; max-width: 900px !important; }
-        .admin-box { background: var(--light-gray); padding: 30px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .admin-box h2 { color: var(--dark-blue); margin-bottom: 15px; border-bottom: 2px solid var(--primary-blue); padding-bottom: 5px; }
+        .admin-container { padding: 30px 0; max-width: 900px !important; }
         
+        /* Premium Tab Menu Styling */
+        .admin-menu { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            margin-bottom: 30px; 
+            background: #fff; 
+            padding: 10px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .menu-btn { 
+            flex: 1;
+            min-width: 150px;
+            background: #f1f5f9; 
+            color: #475569; 
+            border: none; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: 0.3s ease; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .menu-btn:hover { background: var(--light-blue); color: var(--dark-blue); }
+        .menu-btn.active { 
+            background: var(--primary-blue); 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
+        }
+
+        /* Content Sections Toggle */
+        .admin-box { 
+            display: none; /* Shuru me sab hidden hongay */
+            background: var(--light-gray); 
+            padding: 30px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+            animation: fadeIn 0.4s ease;
+        }
+        /* Sirf active box nazar aye ga */
+        .admin-box.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-weight: 600; color: #333; }
         .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 2px solid var(--light-blue); border-radius: 6px; font-size: 15px; outline: none; }
@@ -23,7 +74,10 @@
         .excel-info { background: #e2e3e5; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #383d41; line-height: 1.5; }
         .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (max-width: 600px) { .grid-3col, .grid-2col { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { 
+            .grid-3col, .grid-2col { grid-template-columns: 1fr; } 
+            .admin-menu { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -43,8 +97,15 @@
     <main class="container admin-container">
         <h1 style="color: var(--dark-blue); margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Management Admin Panel</h1>
 
-        <!-- 1. Update Date Sheet -->
-        <div class="admin-box">
+        <div class="admin-menu">
+            <button class="menu-btn active" onclick="openSection(event, 'sec-datesheet')"><i class="fas fa-calendar-alt"></i> Date Sheet</button>
+            <button class="menu-btn" onclick="openSection(event, 'sec-diary')"><i class="fas fa-book-open"></i> Online Diary</button>
+            <button class="menu-btn" onclick="openSection(event, 'sec-results')"><i class="fas fa-file-excel"></i> Exam Results</button>
+            <button class="menu-btn" onclick="openSection(event, 'sec-fees')"><i class="fas fa-file-invoice-dollar"></i> Fee Record</button>
+            <button class="menu-btn" onclick="openSection(event, 'sec-attendance')"><i class="fas fa-user-check"></i> Attendance</button>
+        </div>
+
+        <div id="sec-datesheet" class="admin-box active">
             <h2><i class="fas fa-calendar-alt"></i> 1. Update Date Sheet (Add Exam)</h2>
             <div class="form-group">
                 <label>Select Class:</label>
@@ -76,9 +137,56 @@
             <div id="dsAlert" class="success-alert">Date Sheet Updated Successfully!</div>
         </div>
 
-        <!-- 2. Update Student Fee Record -->
-        <div class="admin-box">
-            <h2><i class="fas fa-file-invoice-dollar"></i> 2. Update Student Fee Record</h2>
+        <div id="sec-diary" class="admin-box">
+            <h2><i class="fas fa-book-open"></i> 2. Update Online Diary Subject Wise</h2>
+            <div class="form-group">
+                <label>Select Class:</label>
+                <select id="diaryClass">
+                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Subject:</label>
+                <select id="diarySubject">
+                    <option value="English">English</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Urdu">Urdu</option>
+                    <option value="Science">Science</option>
+                    <option value="Social Studies">Social Studies</option>
+                    <option value="Islamiyat">Islamiyat</option>
+                    <option value="Computer Science">Computer Science</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Homework Details:</label>
+                <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
+            </div>
+            <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
+            <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
+        </div>
+
+        <div id="sec-results" class="admin-box">
+            <h2><i class="fas fa-file-excel"></i> 3. Upload Exam Results via Excel File</h2>
+            <p style="color: #666; margin-bottom: 10px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
+            
+            <div class="excel-info">
+                <strong>Excel Sheet Column Structure Rules:</strong><br>
+                <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
+            </div>
+
+            <div class="form-group">
+                <label>Select Excel File (.xlsx / .xls):</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            </div>
+            <button class="admin-btn" style="background:#28a745;" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
+            <div id="resultAlert" class="success-alert">Excel Results Uploaded Successfully!</div>
+        </div>
+
+        <div id="sec-fees" class="admin-box">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 4. Update Student Fee Record</h2>
             <div class="form-group">
                 <label>Student Roll Number:</label>
                 <input type="text" id="feeRoll" placeholder="e.g. 1001">
@@ -114,58 +222,7 @@
             <div id="feeAlert" class="success-alert">Student Fee Record Saved Successfully!</div>
         </div>
 
-        <!-- 3. Update Online Diary -->
-        <div class="admin-box">
-            <h2><i class="fas fa-book-open"></i> 3. Update Online Diary Subject Wise</h2>
-            <div class="form-group">
-                <label>Select Class:</label>
-                <select id="diaryClass">
-                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
-                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
-                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
-                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Select Subject:</label>
-                <select id="diarySubject">
-                    <option value="English">English</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Urdu">Urdu</option>
-                    <option value="Science">Science</option>
-                    <option value="Social Studies">Social Studies</option>
-                    <option value="Islamiyat">Islamiyat</option>
-                    <option value="Computer Science">Computer Science</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Homework Details:</label>
-                <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
-            </div>
-            <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
-            <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
-        </div>
-
-        <!-- 4. Upload Exam Results via Excel File -->
-        <div class="admin-box">
-            <h2><i class="fas fa-file-excel"></i> 4. Upload Exam Results via Excel File</h2>
-            <p style="color: #666; margin-bottom: 10px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
-            
-            <div class="excel-info">
-                <strong>Excel Sheet Column Structure Rules:</strong><br>
-                <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
-            </div>
-
-            <div class="form-group">
-                <label>Select Excel File (.xlsx / .xls):</label>
-                <input type="file" id="excelFile" accept=".xlsx, .xls">
-            </div>
-            <button class="admin-btn" style="background:#28a745;" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
-            <div id="resultAlert" class="success-alert">Excel Results Uploaded Successfully!</div>
-        </div>
-
-        <!-- 5. Easy Attendance Panel -->
-        <div class="admin-box">
+        <div id="sec-attendance" class="admin-box">
             <h2><i class="fas fa-user-check"></i> 5. Update Attendance (Easy Way)</h2>
             <p style="color: #666; margin-bottom: 15px;">Madam! Yahan bache ki details aur presents/absents ke total numbers likh dein.</p>
             
@@ -219,6 +276,25 @@
     </main>
 
     <script>
+        // Tab Navigation Controller Function
+        function openSection(evt, sectionId) {
+            // Tamam admin boxes ko hide karo
+            let adminBoxes = document.getElementsByClassName("admin-box");
+            for (let i = 0; i < adminBoxes.length; i++) {
+                adminBoxes[i].classList.remove("active");
+            }
+
+            // Tamam menu buttons se active class hatao
+            let menuButtons = document.getElementsByClassName("menu-btn");
+            for (let i = 0; i < menuButtons.length; i++) {
+                menuButtons[i].classList.remove("active");
+            }
+
+            // Sirf selected box ko show karo aur button ko active karo
+            document.getElementById(sectionId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
         // 1. Date Sheet Logic
         function addDateSheet() {
             let cls = document.getElementById("dsClass").value;
