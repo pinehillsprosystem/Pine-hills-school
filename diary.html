@@ -49,7 +49,7 @@
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
         
         <h1 style="color: var(--dark-blue); margin-bottom: 5px;"><i class="fas fa-book"></i> Daily Student Diary</h1>
-        <div class="date-badge">Today's Diary: 30 May 2026</div>
+        <div class="date-badge" id="diaryDateBadge">Today's Diary: Loading...</div>
 
         <div class="diary-grid">
             
@@ -85,7 +85,7 @@
                 <div id="box-class4" class="subject-container">
                     <div class="subject-item"><span class="subject-name">Mathematics</span><p id="class4-Mathematics" class="homework-text">Table of 12 to 15 write and learn.</p></div>
                     <div class="subject-item"><span class="subject-name">English</span><p id="class4-English" class="homework-text">Do reading of chapter 4.</p></div>
-                    <div class="subject-item"><span class="subject-name">Science</span><p id="box-class4-Science" class="homework-text">Read page 45 thoroughly.</p></div>
+                    <div class="subject-item"><span class="subject-name">Science</span><p id="class4-Science" class="homework-text">Read page 45 thoroughly.</p></div>
                 </div>
             </div>
 
@@ -156,41 +156,80 @@
         </div>
     </footer>
 
-    <script>
-        window.onload = function() {
-            let adminDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : null;
-            if (adminDiary) {
-                // Outer loop har class par chalega
-                Object.keys(adminDiary).forEach(clsKey => {
-                    let classSubjects = adminDiary[clsKey];
-                    
-                    // Inner loop us class ke subjects par chalega
-                    Object.keys(classSubjects).forEach(subKey => {
-                        // Sahi container card check karne ke liye string remove spaces
-                        let elementId = clsKey + "-" + subKey.replace(/\s+/g, '');
-                        let targetParagraph = document.getElementById(elementId);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Pine Hills School Credentials Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "310029732655",
+            appId: "1:310029732655:web:37edd331495239524cefda"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // System Date Automation Formatting
+        function updateDiaryBadgeDate() {
+            const today = new Date();
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById("diaryDateBadge").innerText = "Today's Diary: " + today.toLocaleDateString('en-GB', options);
+        }
+
+        // Live Firestore Synchronizer Execution
+        function syncLiveDiaryDatabase() {
+            // Listening directly to 'schoolDiary' document tracking inside schoolData collection
+            const diaryDocRef = doc(db, "schoolData", "schoolDiary");
+
+            onSnapshot(diaryDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const adminDiary = snapshot.data();
+
+                    // Outer Loop mapping classes keys
+                    Object.keys(adminDiary).forEach(clsKey => {
+                        const classSubjects = adminDiary[clsKey];
                         
-                        if (targetParagraph) {
-                            // Agar subject pehle se maujood hai to sirf text update karo
-                            targetParagraph.innerHTML = `<i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}`;
-                            targetParagraph.style.backgroundColor = "#f4f9ff";
-                        } else {
-                            // DYNAMIC FIX: Agar 3 subjects se upar naya subject hai, to uska naya block khud banayein!
-                            let classBoxContainer = document.getElementById("box-" + clsKey);
-                            if(classBoxContainer) {
-                                let newSubjectHTML = `
-                                    <div class="subject-item">
-                                        <span class="subject-name">${subKey}</span>
-                                        <p id="${elementId}" class="homework-text" style="background-color: #f4f9ff;"><i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}</p>
-                                    </div>
-                                `;
-                                classBoxContainer.insertAdjacentHTML('beforeend', newSubjectHTML);
-                            }
+                        if (typeof classSubjects === 'object' && classSubjects !== null) {
+                            // Inner loop rendering current subjects data updates
+                            Object.keys(classSubjects).forEach(subKey => {
+                                const elementId = clsKey + "-" + subKey.replace(/\s+/g, '');
+                                const targetParagraph = document.getElementById(elementId);
+                                
+                                if (targetParagraph) {
+                                    // Update inner layout structure securely
+                                    targetParagraph.innerHTML = `<i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}`;
+                                    targetParagraph.style.backgroundColor = "#f4f9ff";
+                                } else {
+                                    // Dynamic block builder injection logic preserved perfectly
+                                    const classBoxContainer = document.getElementById("box-" + clsKey);
+                                    if (classBoxContainer) {
+                                        const newSubjectHTML = `
+                                            <div class="subject-item">
+                                                <span class="subject-name">${subKey}</span>
+                                                <p id="${elementId}" class="homework-text" style="background-color: #f4f9ff;"><i class="fas fa-xs fa-circle" style="color: var(--primary-blue); font-size:8px; vertical-align:middle;"></i> ${classSubjects[subKey]}</p>
+                                            </div>
+                                        `;
+                                        classBoxContainer.insertAdjacentHTML('beforeend', newSubjectHTML);
+                                    }
+                                }
+                            });
                         }
                     });
-                });
-            }
-        };
+                }
+            }, (error) => {
+                console.error("Diary Firebase loading failed: ", error);
+            });
+        }
+
+        // Run functions on load state
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDiaryBadgeDate();
+            syncLiveDiaryDatabase();
+        });
     </script>
 </body>
 </html>
