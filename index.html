@@ -6,140 +6,326 @@
     <title>Pine Hills School</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* --- Responsive Navbar Overrides --- */
+        /* --- Actual School Logo Styling --- */
+        .school-brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 33, 71, 0.15);
+            border: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+        
+        .school-brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Responsive Navbar Fixed & Cleaned --- */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            padding: 15px 20px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            gap: 15px;
+        }
+        .nav-branding-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .school-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #002147;
+            white-space: nowrap;
         }
         .nav-links {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             list-style: none;
             margin: 0;
             padding: 0;
-            flex-wrap: wrap;
+            align-items: center;
         }
         .nav-links li a {
             text-decoration: none !important;
             font-weight: 600;
             font-size: 15px;
+            color: #1e293b;
+            transition: 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+        .nav-links li a:hover, .nav-links li a.active {
+            color: #0072ff;
+            background: #f0f7ff;
+        }
+        .admin-login-btn {
+            background: #e0f2fe;
+            color: #0369a1 !important;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
             transition: 0.3s;
         }
+        .admin-login-btn:hover {
+            background: #0072ff !important;
+            color: white !important;
+        }
         
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
                 text-align: center;
-                padding: 10px;
+                gap: 12px;
+                padding: 15px 10px;
+            }
+            .nav-branding-group {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .school-name {
+                font-size: 20px;
             }
             .nav-links {
                 justify-content: center;
-                gap: 8px;
+                gap: 5px;
+                width: 100%;
             }
             .nav-links li a {
                 font-size: 13px;
-                padding: 4px 8px;
+                padding: 6px 8px;
+            }
+            .admin-login-btn { display: none !important; }
+        }
+
+        @media (max-width: 380px) {
+            .nav-links {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .nav-links li {
+                text-align: center;
             }
         }
 
-        /* --- Quick Access Grid (Hero Ke Niche Ke Liye) --- */
+        /* --- Quick Access Grid --- */
         .quick-access-box {
             background: #ffffff;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin: -30px auto 40px auto; /* Is se yeh hero banner ke sath khubsoorat touch hoga */
+            margin: -30px auto 40px auto;
             text-align: center;
             max-width: 1100px;
             position: relative;
             z-index: 10;
         }
-        .quick-access-box h3 {
-            color: #002147;
-            font-size: 18px;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        .quick-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-        }
-        .quick-card-link {
-            text-decoration: none !important;
-            display: block;
-        }
+        .quick-access-box h3 { color: #002147; font-size: 18px; margin-bottom: 15px; font-weight: 700; }
+        .quick-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .quick-card-link { text-decoration: none !important; display: block; }
         .quick-card {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 15px 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s ease;
         }
-        .quick-card:hover {
-            transform: translateY(-3px);
-            border-color: #0072ff;
-            background: #f0f7ff;
-        }
-        .quick-card i {
-            font-size: 22px;
-            color: #0072ff;
-        }
-        .quick-card span {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e293b;
-        }
+        .quick-card:hover { transform: translateY(-3px); border-color: #0072ff; background: #f0f7ff; }
+        .quick-card i { font-size: 22px; color: #0072ff; }
+        .quick-card span { font-size: 13px; font-weight: 600; color: #1e293b; }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .quick-access-box { margin-top: 20px; } /* Mobile par gap adjust kiya */
-            .quick-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .quick-access-box { margin-top: 20px; }
+            .quick-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 480px) {
-            .quick-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .quick-card i { font-size: 18px; }
-            .quick-card span { font-size: 12px; }
+            .quick-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-card i { font-size: 18px; } .quick-card span { font-size: 12px; }
+        }
+
+        /* --- Secret Login Modal --- */
+        .login-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 33, 71, 0.6); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .login-content {
+            background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; text-align: center;
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #64748b; }
+        .login-content h3 { margin-bottom: 20px; color: #002147; }
+        .login-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; text-align: left; }
+        .login-group label { font-weight: 600; color: #333; }
+        .login-group input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
+
+        /* --- RESTORED: Premium Admin Tabbed Panel --- */
+        .integrated-admin-container {
+            display: none; 
+            background: #ffffff; 
+            border: 2px solid #e2e8f0; 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin: 30px 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .admin-container { padding: 10px 0; max-width: 100% !important; }
+        
+        /* Restored Menu Layout & Tab Styling */
+        .admin-menu { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+            margin-bottom: 30px; 
+            background: #f8fafc; 
+            padding: 10px; 
+            border-radius: 14px; 
+            border: 1px solid #e2e8f0;
+        }
+        .menu-btn { 
+            flex: 1; 
+            min-width: 140px; 
+            background: transparent; 
+            color: #64748b; 
+            border: none; 
+            padding: 12px 18px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+        .menu-btn:hover { 
+            background: #f1f5f9; 
+            color: #0f172a; 
+        }
+        .menu-btn.active { 
+            background: #0072ff; 
+            color: #ffffff; 
+            box-shadow: 0 4px 14px rgba(0, 114, 255, 0.25); 
         }
         
-        .card-wrapper-link {
-            text-decoration: none !important;
+        /* Restored Box Panel Styling */
+        .admin-box { 
+            display: none; 
+            background: #ffffff; 
+            padding: 0; 
+            border-radius: 0; 
+            border: none; 
+            box-shadow: none; 
+            animation: fadeIn 0.4s ease; 
         }
+        .admin-box.active { display: block; }
+        
+        /* Restored Form Elements Aesthetic */
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+        .form-group label { font-weight: 600; color: #1e293b; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { 
+            padding: 12px 16px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 15px; 
+            outline: none; 
+            background: #ffffff; 
+            color: #0f172a;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+        }
+        
+        /* Restored Buttons & Alerts Styling */
+        .admin-btn { 
+            background: #0072ff; 
+            color: #ffffff; 
+            border: none; 
+            padding: 14px 24px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            width: 100%; 
+            font-size: 15px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+        }
+        .admin-btn:hover { 
+            background: #0056c6; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 114, 255, 0.2);
+        }
+        .admin-btn:active {
+            transform: translateY(0);
+        }
+        
+        .success-alert { 
+            display: none; 
+            background: #ecfdf5; 
+            color: #065f46; 
+            border: 1px solid #a7f3d0; 
+            padding: 14px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            text-align: center; 
+            font-size: 14px;
+        }
+        .excel-info { 
+            background: #f8fafc; 
+            padding: 16px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            color: #475569; 
+            line-height: 1.6; 
+            border: 1px solid #e2e8f0;
+        }
+        
+        .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        @media (max-width: 600px) { .grid-3col, .grid-2col { grid-template-columns: 1fr; gap: 10px; } .admin-menu { flex-direction: column; } }
+        .card-wrapper-link { text-decoration: none !important; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="container navbar">
-            <div class="logo-placeholder">
-                <span>[ LOGO HERE ]</span>
+            <div class="nav-branding-group">
+                <div class="school-brand-logo">
+                    <img src="real logo copy_2.jpg" alt="Pine Hills School Logo">
+                </div>
+                <div class="school-name">Pine Hills School</div>
             </div>
-            <div class="school-name">Pine Hills School</div>
             <nav>
                 <ul class="nav-links">
                     <li><a href="#home" class="active">Home</a></li>
                     <li><a href="#students">Students</a></li>
                     <li><a href="#parents">Parents</a></li>
-                    <li><a href="#portal">Portal</a></li>
                     <li><a href="contact-teachers.html">Contact</a></li>
+                    <li><a class="admin-login-btn" id="loginToggleBtn" onclick="toggleLoginModal()"><i class="fas fa-lock"></i> Medum Login</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- HERO BANNER SECTION -->
     <section id="home" class="hero">
         <div class="container hero-content">
             <h1>Welcome to Pine Hills School</h1>
@@ -151,129 +337,237 @@
         </div>
     </section>
 
-    <!-- FIXED PLACE: QUICK ACCESS MENU (HERO KE BILKUL NICHE) -->
     <div class="container">
         <div class="quick-access-box">
             <h3><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Access Portal Menu</h3>
             <div class="quick-grid">
-                
-                <a href="syllabus.html" class="quick-card-link">
-                    <div class="quick-card">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Date Sheet</span>
-                    </div>
-                </a>
-
-                <a href="diary.html" class="quick-card-link">
-                    <div class="quick-card">
-                        <i class="fas fa-book"></i>
-                        <span>Online Diary</span>
-                    </div>
-                </a>
-
-                <a href="results.html" class="quick-card-link">
-                    <div class="quick-card">
-                        <i class="fas fa-poll"></i>
-                        <span>Exam Results</span>
-                    </div>
-                </a>
-
-                <a href="fee-status.html" class="quick-card-link">
-                    <div class="quick-card">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <span>Fee Record</span>
-                    </div>
-                </a>
-
-                <a href="attendance.html" class="quick-card-link">
-                    <div class="quick-card">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Attendance</span>
-                    </div>
-                </a>
-
+                <a href="syllabus.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-calendar-alt"></i><span>Date Sheet</span></div></a>
+                <a href="diary.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-book"></i><span>Online Diary</span></div></a>
+                <a href="results.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-poll"></i><span>Exam Results</span></div></a>
+                <a href="fee-status.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-file-invoice-dollar"></i><span>Fee Record</span></div></a>
+                <a href="attendance.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-calendar-check"></i><span>Attendance</span></div></a>
             </div>
         </div>
     </div>
 
     <section class="main-content container">
 
-        <!-- STUDENT CORNER -->
+        <div id="secretAdminPanel" class="integrated-admin-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">
+                <h2 style="color: #002147; margin:0; font-size:22px; font-weight:700;"><i class="fas fa-user-shield" style="color:#0072ff;"></i> Management Admin Panel</h2>
+                <button onclick="logoutAdmin()" style="background:#ef4444; color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:0.2s;"><i class="fas fa-sign-out-alt"></i> Logout Panel</button>
+            </div>
+
+            <div class="admin-container">
+                <div class="admin-menu">
+                    <button class="menu-btn active" onclick="openSection(event, 'sec-datesheet')"><i class="fas fa-calendar-alt"></i> Date Sheet</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-diary')"><i class="fas fa-book-open"></i> Online Diary</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-results')"><i class="fas fa-file-excel"></i> Exam Results</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-fees')"><i class="fas fa-file-invoice-dollar"></i> Fee Record</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-attendance')"><i class="fas fa-user-check"></i> Attendance</button>
+                </div>
+
+                <div id="sec-datesheet" class="admin-box active">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-calendar-alt" style="color:#0072ff;"></i> 1. Update Date Sheet (Add Exam)</h3>
+                    <div class="form-group">
+                        <label>Select Class:</label>
+                        <select id="dsClass">
+                            <option value="kg1">KG 1</option><option value="kg2">KG 2</option>
+                            <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                            <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                            <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                            <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Day:</label>
+                        <input type="text" id="dsDate" placeholder="01 June (Monday)">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject Name:</label>
+                        <input type="text" id="dsSubject" placeholder="Mathematics">
+                    </div>
+                    <div class="form-group">
+                        <label>Exam Timing:</label>
+                        <input type="text" id="dsTime" placeholder="08:30 AM - 11:30 AM">
+                    </div>
+                    <div class="form-group">
+                        <label>Room / Block No:</label>
+                        <input type="text" id="dsRoom" placeholder="Block A - Room 102">
+                    </div>
+                    <button class="admin-btn" onclick="addDateSheet()"><i class="fas fa-plus"></i> Add to Date Sheet</button>
+                    <div id="dsAlert" class="success-alert">Date Sheet Updated Successfully!</div>
+                </div>
+
+                <div id="sec-diary" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-book-open" style="color:#0072ff;"></i> 2. Update Online Diary Subject Wise</h3>
+                    <div class="form-group">
+                        <label>Select Class:</label>
+                        <select id="diaryClass">
+                            <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                            <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                            <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                            <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Subject:</label>
+                        <select id="diarySubject">
+                            <option value="English">English</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Urdu">Urdu</option>
+                            <option value="Science">Science</option>
+                            <option value="Social Studies">Social Studies</option>
+                            <option value="Islamiyat">Islamiyat</option>
+                            <option value="Computer Science">Computer Science</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Homework Details:</label>
+                        <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
+                    </div>
+                    <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
+                    <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
+                </div>
+
+                <div id="sec-results" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:10px;"><i class="fas fa-file-excel" style="color:#28a745;"></i> 3. Upload Exam Results via Excel File</h3>
+                    <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
+                    <div class="excel-info">
+                        <strong>Excel Sheet Column Structure Rules:</strong><br>
+                        <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Excel File (.xlsx / .xls):</label>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" style="border: 1px dashed #cbd5e1; padding: 15px; background: #f8fafc;">
+                    </div>
+                    <button class="admin-btn" style="background:#28a745; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
+                    <div id="resultAlert" class="success-alert">Excel Results Uploaded Successfully!</div>
+                </div>
+
+                <div id="sec-fees" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-file-invoice-dollar" style="color:#0072ff;"></i> 4. Update Student Fee Record</h3>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Roll Number:</label>
+                            <input type="text" id="feeRoll" placeholder="e.g. 1001">
+                        </div>
+                        <div class="form-group">
+                            <label>Student Name:</label>
+                            <input type="text" id="feeName" placeholder="Muhammad Ali">
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Father Name:</label>
+                            <input type="text" id="feeFather" placeholder="Sajid Hussain">
+                        </div>
+                        <div class="form-group">
+                            <label>Class:</label>
+                            <input type="text" id="feeClass" placeholder="Class 5">
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Current Payable Dues (Rs.):</label>
+                            <input type="number" id="feePayable" placeholder="e.g. 4500">
+                        </div>
+                        <div class="form-group">
+                            <label>Fee Month Name:</label>
+                            <input type="text" id="feeMonth" placeholder="e.g. May 2026">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Fee Status:</label>
+                        <select id="feeStatusSelect">
+                            <option value="Paid">Paid (Fees Jama Ho Gai)</option>
+                            <option value="Unpaid">Unpaid (Fees Rehti Hai)</option>
+                        </select>
+                    </div>
+                    <button class="admin-btn" onclick="updateFeeRecord()"><i class="fas fa-save"></i> Save Student Fee Record</button>
+                    <div id="feeAlert" class="success-alert">Student Fee Record Saved Successfully!</div>
+                </div>
+
+                <div id="sec-attendance" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:10px;"><i class="fas fa-user-check" style="color:#0284c7;"></i> 5. Update Attendance</h3>
+                    <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Madam! Yahan bache ki details aur presents/absents ke total numbers likh dein.</p>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Roll Number:</label>
+                            <input type="text" id="attRoll" placeholder="e.g. 1001">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Class:</label>
+                            <select id="attClass">
+                                <option value="KG 1">KG 1</option><option value="KG 2">KG 2</option>
+                                <option value="Class 1">Class 1</option><option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option><option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option><option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option><option value="Class 8">Class 8</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Name:</label>
+                            <input type="text" id="attStudentName" placeholder="e.g. Muhammad Ali">
+                        </div>
+                        <div class="form-group">
+                            <label>Father Name:</label>
+                            <input type="text" id="attFatherName" placeholder="e.g. Sajid Hussain">
+                        </div>
+                    </div>
+                    <div class="grid-3col">
+                        <div class="form-group">
+                            <label>Total School Days:</label>
+                            <input type="number" id="attTotalDays" value="30" placeholder="e.g. 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Presents:</label>
+                            <input type="number" id="attPresents" placeholder="e.g. 26">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Absents:</label>
+                            <input type="number" id="attAbsents" placeholder="e.g. 4">
+                        </div>
+                    </div>
+                    <button class="admin-btn" style="background:#0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);" onclick="updateAttendanceRecord()"><i class="fas fa-save"></i> Save Attendance Report</button>
+                    <div id="attendanceAlert" class="success-alert">Attendance Records Saved Successfully!</div>
+                </div>
+            </div>
+        </div>
         <div id="students" class="portal-section">
             <h2><i class="fas fa-graduation-cap"></i> Student Corner</h2>
             <p>Apni parhai se mutaliq sab kuch yahan dekhain.</p>
             <div class="grid">
-                
-                <a href="syllabus.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-calendar-alt card-icon"></i>
-                        <h3>Date Sheet</h3>
-                        <p>Exam dates aur syllabus download karein.</p>
-                        <span class="card-link">View Details →</span>
-                    </div>
-                </a>
-
-                <a href="diary.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-book card-icon"></i>
-                        <h3>Online Diary</h3>
-                        <p>Apna rozana ka homework aur school diary check karein.</p>
-                        <span class="card-link">View Diary →</span>
-                    </div>
-                </a>
-
-                <a href="results.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-poll card-icon"></i>
-                        <h3>Exam Results</h3>
-                        <p>Apne term aur final exams ke results check karein.</p>
-                        <span class="card-link">Check Result →</span>
-                    </div>
-                </a>
-
+                <a href="syllabus.html" class="card-wrapper-link"><div class="card"><i class="fas fa-calendar-alt card-icon"></i><h3>Date Sheet</h3><p>Exam dates aur syllabus download karein.</p><span class="card-link">View Details →</span></div></a>
+                <a href="diary.html" class="card-wrapper-link"><div class="card"><i class="fas fa-book card-icon"></i><h3>Online Diary</h3><p>Apna rozana ka homework aur school diary check karein.</p><span class="card-link">View Diary →</span></div></a>
+                <a href="results.html" class="card-wrapper-link"><div class="card"><i class="fas fa-poll card-icon"></i><h3>Exam Results</h3><p>Apne term aur final exams ke results check karein.</p><span class="card-link">Check Result →</span></div></a>
             </div>
         </div>
 
         <hr class="section-divider">
 
-        <!-- PARENTS PORTAL -->
         <div id="parents" class="portal-section">
             <h2><i class="fas fa-user-friends"></i> Parents Portal</h2>
             <p>Apne bachon ki hifazat aur behtari ke liye update rahain.</p>
-            
             <div class="grid">
-                
-                <a href="attendance.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-calendar-check card-icon"></i>
-                        <h3>Attendance Report</h3>
-                        <p>Bache ki rozana ki attendance check karein.</p>
-                        <span class="card-link">View Attendance →</span>
-                    </div>
-                </a>
-
-                <a href="fee-status.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-file-invoice-dollar card-icon"></i>
-                        <h3>Fee Status</h3>
-                        <p>School fees ka challan aur payment history dekhain.</p>
-                        <span class="card-link">Pay Fees →</span>
-                    </div>
-                </a>
-
-                <a href="contact-teachers.html" class="card-wrapper-link">
-                    <div class="card">
-                        <i class="fas fa-comments card-icon"></i>
-                        <h3>Teacher Connection</h3>
-                        <p>Teachers se raabta karein aur remarks check karein.</p>
-                        <span class="card-link">Contact Teacher →</span>
-                    </div>
-                </a>
-
+                <a href="attendance.html" class="card-wrapper-link"><div class="card"><i class="fas fa-calendar-check card-icon"></i><h3>Attendance Report</h3><p>Bache ki rozana ki attendance check karein.</p><span class="card-link">View Attendance →</span></div></a>
+                <a href="fee-status.html" class="card-wrapper-link"><div class="card"><i class="fas fa-file-invoice-dollar card-icon"></i><h3>Fee Status</h3><p>School fees ka challan aur payment history dekhain.</p><span class="card-link">Pay Fees →</span></div></a>
+                <a href="contact-teachers.html" class="card-wrapper-link"><div class="card"><i class="fas fa-comments card-icon"></i><h3>Teacher Connection</h3><p>Teachers se raabta karein aur remarks check karein.</p><span class="card-link">Contact Teacher →</span></div></a>
             </div>
         </div>
-
     </section>
+
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <span class="close-modal" onclick="toggleLoginModal()">&times;</span>
+            <h3><i class="fas fa-lock"></i> Administration Login</h3>
+            <div class="login-group"><label>Username:</label><input type="text" id="userInput" placeholder="Enter username"></div>
+            <div class="login-group"><label>Password:</label><input type="password" id="passInput" placeholder="Enter password"></div>
+            <button class="admin-btn" onclick="checkLogin()">Secure Login</button>
+        </div>
+    </div>
 
     <footer>
         <div class="container footer-content">
@@ -282,5 +576,145 @@
         </div>
     </footer>
 
+    <script>
+        function toggleLoginModal() {
+            let modal = document.getElementById("loginModal");
+            modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+        }
+
+        function checkLogin() {
+            let user = document.getElementById("userInput").value.trim();
+            let pass = document.getElementById("passInput").value.trim();
+            if(user === "admin" && pass === "pinehills2026") {
+                document.getElementById("secretAdminPanel").style.display = "block";
+                document.getElementById("loginToggleBtn").innerHTML = "<i class='fas fa-unlock'></i> Panel Open";
+                toggleLoginModal();
+                document.getElementById("secretAdminPanel").scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("Galt Username ya Password!");
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById("secretAdminPanel").style.display = "none";
+            document.getElementById("loginToggleBtn").innerHTML = "<i class='fas fa-lock'></i> Medum Login";
+            document.getElementById("userInput").value = "";
+            document.getElementById("passInput").value = "";
+        }
+
+        function openSection(evt, sectionId) {
+            let adminBoxes = document.getElementsByClassName("admin-box");
+            for (let i = 0; i < adminBoxes.length; i++) {
+                adminBoxes[i].classList.remove("active");
+            }
+            let menuButtons = document.getElementsByClassName("menu-btn");
+            for (let i = 0; i < menuButtons.length; i++) {
+                menuButtons[i].classList.remove("active");
+            }
+            document.getElementById(sectionId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function addDateSheet() {
+            let cls = document.getElementById("dsClass").value;
+            let date = document.getElementById("dsDate").value.trim();
+            let sub = document.getElementById("dsSubject").value.trim();
+            let time = document.getElementById("dsTime").value.trim();
+            let room = document.getElementById("dsRoom").value.trim();
+            if(!date || !sub) { alert("Date aur Subject lazmi likhein!"); return; }
+            let localDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : {};
+            if(!localDS[cls]) { localDS[cls] = []; }
+            localDS[cls].push({ date: date, subject: sub, time: time, room: room });
+            localStorage.setItem("localDateSheet", JSON.stringify(localDS));
+            document.getElementById("dsAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
+            document.getElementById("dsDate").value = ""; document.getElementById("dsSubject").value = "";
+        }
+
+        function updateFeeRecord() {
+            let roll = document.getElementById("feeRoll").value.trim();
+            let name = document.getElementById("feeName").value.trim();
+            let father = document.getElementById("feeFather").value.trim();
+            let cls = document.getElementById("feeClass").value.trim();
+            let payable = parseInt(document.getElementById("feePayable").value) || 0;
+            let month = document.getElementById("feeMonth").value.trim() || "Current Month";
+            let status = document.getElementById("feeStatusSelect").value;
+            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
+            let localFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : {};
+            let statusText = (status === "Paid") ? "All Dues Clear" : "Pending Payment";
+            localFees[roll] = {
+                name: name, father: father, class: cls, payable: payable, statusText: statusText,
+                history: [{ month: month, challan: "PHS-" + Math.floor(1000 + Math.random() * 9000), amount: "Rs. " + payable.toLocaleString(), status: status, canDownload: status === "Unpaid" ? true : false }]
+            };
+            localStorage.setItem("localFeeDB", JSON.stringify(localFees));
+            document.getElementById("feeAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
+            document.getElementById("feeRoll").value = ""; document.getElementById("feeName").value = "";
+            document.getElementById("feeFather").value = ""; document.getElementById("feeClass").value = "";
+            document.getElementById("feePayable").value = ""; document.getElementById("feeMonth").value = "";
+        }
+
+        function updateSubjectDiary() {
+            let cls = document.getElementById("diaryClass").value;
+            let subject = document.getElementById("diarySubject").value;
+            let content = document.getElementById("diaryContent").value.trim();
+            if(!content) { alert("Homework Details likhein!"); return; }
+            let localDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : {};
+            if(!localDiary[cls]) { localDiary[cls] = {}; }
+            localDiary[cls][subject] = content;
+            localStorage.setItem("localSubjectDiaryDB", JSON.stringify(localDiary));
+            document.getElementById("diaryAlert").style.display = "block";
+            setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
+            document.getElementById("diaryContent").value = "";
+        }
+
+        function updateAttendanceRecord() {
+            let roll = document.getElementById("attRoll").value.trim();
+            let cls = document.getElementById("attClass").value;
+            let name = document.getElementById("attStudentName").value.trim();
+            let father = document.getElementById("attFatherName").value.trim();
+            let totalDays = document.getElementById("attTotalDays").value;
+            let presents = document.getElementById("attPresents").value.trim();
+            let absents = document.getElementById("attAbsents").value.trim();
+
+            if(!roll || !name || !presents) { 
+                alert("Roll Number, Student Name aur Presents likhna lazmi hai!"); 
+                return; 
+            }
+
+            let percentage = ((parseInt(presents) / parseInt(totalDays)) * 100).toFixed(1) + "%";
+            let attendanceDB = localStorage.getItem("localAttendanceDB") ? JSON.parse(localStorage.getItem("localAttendanceDB")) : {};
+            
+            attendanceDB[roll] = {
+                name: name,
+                father: father,
+                class: cls,
+                totalDays: totalDays,
+                presents: presents,
+                absents: absents || "0",
+                percentage: percentage
+            };
+
+            localStorage.setItem("localAttendanceDB", JSON.stringify(attendanceDB));
+
+            let alertBox = document.getElementById("attendanceAlert");
+            alertBox.style.display = "block";
+            
+            setTimeout(() => { 
+                alertBox.style.display = "none"; 
+            }, 3000);
+
+            document.getElementById("attRoll").value = "";
+            document.getElementById("attStudentName").value = "";
+            document.getElementById("attFatherName").value = "";
+            document.getElementById("attPresents").value = "";
+            document.getElementById("attAbsents").value = "";
+        }
+
+        function uploadExcelResult() {
+            let fileInput = document.getElementById('excelFile');
+            if (fileInput.files.length === 0) { alert("Meharbani karke pehle ek Excel file select karein!"); return; }
+        }
+    </script>
 </body>
 </html>
