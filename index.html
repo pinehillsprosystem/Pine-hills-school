@@ -435,7 +435,7 @@
                     <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
                     <div class="excel-info">
                         <strong>Excel Sheet Column Structure Rules:</strong><br>
-                        <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
+                        <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>G.k</code>, <code>drawing</code>, <code>attendance</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
                     </div>
                     <div class="form-group">
                         <label>Select Excel File (.xlsx / .xls):</label>
@@ -553,7 +553,7 @@
             <p>Apne bachon ki hifazat aur behtari ke liye update rahain.</p>
             <div class="grid">
                 <a href="attendance.html" class="card-wrapper-link"><div class="card"><i class="fas fa-calendar-check card-icon"></i><h3>Attendance Report</h3><p>Bache ki rozana ki attendance check karein.</p><span class="card-link">View Attendance →</span></div></a>
-                <a href="fee-status.html" class="card-wrapper-link"><div class="card"><i class="fas fa-file-invoice-dollar card-icon"></i><h3>Fee Status</h3><p>School fees ka challan aur payment history dekhain.</p><span class="card-link">Pay Fees →</span></div></a>
+                <a href="fee-status.html" class="card-wrapper-link"><div class="card"><i class="fas fa-file-invoice-dollar card-icon"></i><h3>Fee Status</h3><p>School fees ka challan aur payment history dekhain.</p><span class="card-link">View Fee →</span></div></a>
                 <a href="contact-teachers.html" class="card-wrapper-link"><div class="card"><i class="fas fa-comments card-icon"></i><h3>Teacher Connection</h3><p>Teachers se raabta karein aur remarks check karein.</p><span class="card-link">Contact Teacher →</span></div></a>
             </div>
         </div>
@@ -575,6 +575,194 @@
             <p>Designed for Students & Parents | Light Theme</p>
         </div>
     </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Actual configuration from your Firebase app registration console
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "31002732655",
+            appId: "1:31002732655:web:37edd331495239524cefda"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        console.log("Pine Hills School Cloud Database Live Connected! 🎉");
+
+        // --- 1. DATE SHEET SUBMISSION ---
+        window.addDateSheet = async function() {
+            let cls = document.getElementById("dsClass").value;
+            let date = document.getElementById("dsDate").value.trim();
+            let sub = document.getElementById("dsSubject").value.trim();
+            let time = document.getElementById("dsTime").value.trim();
+            let room = document.getElementById("dsRoom").value.trim();
+
+            if(!date || !sub) { alert("Date aur Subject likhna zaroori hai!"); return; }
+
+            try {
+                let docId = `${cls}_${date.replace(/\s+/g, '_')}`;
+                await setDoc(doc(db, "dateSheets", docId), {
+                    class: cls,
+                    date: date,
+                    subject: sub,
+                    time: time,
+                    room: room,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("dsAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
+                document.getElementById("dsDate").value = ""; 
+                document.getElementById("dsSubject").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Database insertion failed!");
+            }
+        }
+
+        // --- 2. ONLINE DIARY SUBMISSION ---
+        window.updateSubjectDiary = async function() {
+            let cls = document.getElementById("diaryClass").value;
+            let sub = document.getElementById("diarySubject").value;
+            let content = document.getElementById("diaryContent").value.trim();
+
+            if(!content) { alert("Homework likhna zaroori hai!"); return; }
+
+            try {
+                let docId = `${cls}_${sub}`;
+                await setDoc(doc(db, "onlineDiaries", docId), {
+                    class: cls,
+                    subject: sub,
+                    homework: content,
+                    date: new Date().toLocaleDateString(),
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("diaryAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
+                document.getElementById("diaryContent").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Diary update error.");
+            }
+        }
+
+        // --- 3. EXCEL AUTOMATED EXAM RESULT SUBMISSION ---
+        window.uploadExcelResult = function() {
+            let fileInput = document.getElementById("excelFile");
+            if(fileInput.files.length === 0) { alert("Pehle koi excel file select karein!"); return; }
+
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let firstSheet = workbook.SheetNames[0];
+                let sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+                if(sheetData.length === 0) { alert("Excel sheet khali hai!"); return; }
+
+                let uploadPromises = sheetData.map(async (row) => {
+                    let roll = String(row.RollNo || '').trim();
+                    if(!roll) return;
+
+                    // Custom loops to build raw dynamic subject payload including dynamic custom requirements
+                    return setDoc(doc(db, "examResults", roll), {
+                        rollNo: roll,
+                        name: row.Name || '',
+                        fatherName: row.FatherName || '',
+                        class: row.Class || '',
+                        english: row.English || 0,
+                        mathematics: row.Mathematics || 0,
+                        science: row.Science || 0,
+                        urdu: row.Urdu || 0,
+                        gk: row.G.k || row.GK || 0,
+                        drawing: row.drawing || row.Drawing || 0,
+                        attendance: row.attendance || row.Attendance || 0,
+                        totalMarks: row.TotalMarks || 0,
+                        obtainedMarks: row.ObtainedMarks || row.TotalMarks || 0,
+                        grade: row.Grade || '',
+                        uploadedAt: new Date().toISOString()
+                    });
+                });
+
+                Promise.all(uploadPromises).then(() => {
+                    document.getElementById("resultAlert").style.display = "block";
+                    setTimeout(() => { document.getElementById("resultAlert").style.display = "none"; }, 3000);
+                    fileInput.value = "";
+                }).catch(err => {
+                    console.error(err);
+                    alert("Kuch student records save nahi ho sakay.");
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- 4. FEE RECORD MANUAL MANAGEMENT ---
+        window.updateFeeRecord = async function() {
+            let roll = document.getElementById("feeRoll").value.trim();
+            let name = document.getElementById("feeName").value.trim();
+            let father = document.getElementById("feeFather").value.trim();
+            let sClass = document.getElementById("feeClass").value.trim();
+            let payable = document.getElementById("feePayable").value.trim();
+            let month = document.getElementById("feeMonth").value.trim();
+            let status = document.getElementById("feeStatusSelect").value;
+
+            if(!roll || !name) { alert("Roll Number aur Name lazmi enter karein!"); return; }
+
+            try {
+                await setDoc(doc(db, "feeRecords", roll), {
+                    name: name,
+                    father: father,
+                    class: sClass,
+                    payable: payable,
+                    month: month,
+                    status: status,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("feeAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
+            } catch (e) {
+                console.error(e);
+                alert("Fee status record updated error.");
+            }
+        }
+
+        // --- 5. ATTENDANCE SUBMISSION ---
+        window.updateAttendanceRecord = async function() {
+            let roll = document.getElementById("attRoll").value.trim();
+            let cls = document.getElementById("attClass").value;
+            let name = document.getElementById("attStudentName").value.trim();
+            let father = document.getElementById("attFatherName").value.trim();
+            let total = document.getElementById("attTotalDays").value.trim();
+            let present = document.getElementById("attPresents").value.trim();
+            let absent = document.getElementById("attAbsents").value.trim();
+
+            if(!roll || !name) { alert("Roll number aur Name zaroori hai!"); return; }
+
+            try {
+                await setDoc(doc(db, "attendanceRecords", roll), {
+                    class: cls,
+                    name: name,
+                    father: father,
+                    totalDays: total,
+                    presents: present,
+                    absents: absent,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("attendanceAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("attendanceAlert").style.display = "none"; }, 3000);
+            } catch (e) {
+                console.error(e);
+                alert("Attendance could not be saved.");
+            }
+        }
+    </script>
 
     <script>
         function toggleLoginModal() {
@@ -613,107 +801,6 @@
             }
             document.getElementById(sectionId).classList.add("active");
             evt.currentTarget.classList.add("active");
-        }
-
-        function addDateSheet() {
-            let cls = document.getElementById("dsClass").value;
-            let date = document.getElementById("dsDate").value.trim();
-            let sub = document.getElementById("dsSubject").value.trim();
-            let time = document.getElementById("dsTime").value.trim();
-            let room = document.getElementById("dsRoom").value.trim();
-            if(!date || !sub) { alert("Date aur Subject lazmi likhein!"); return; }
-            let localDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : {};
-            if(!localDS[cls]) { localDS[cls] = []; }
-            localDS[cls].push({ date: date, subject: sub, time: time, room: room });
-            localStorage.setItem("localDateSheet", JSON.stringify(localDS));
-            document.getElementById("dsAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
-            document.getElementById("dsDate").value = ""; document.getElementById("dsSubject").value = "";
-        }
-
-        function updateFeeRecord() {
-            let roll = document.getElementById("feeRoll").value.trim();
-            let name = document.getElementById("feeName").value.trim();
-            let father = document.getElementById("feeFather").value.trim();
-            let cls = document.getElementById("feeClass").value.trim();
-            let payable = parseInt(document.getElementById("feePayable").value) || 0;
-            let month = document.getElementById("feeMonth").value.trim() || "Current Month";
-            let status = document.getElementById("feeStatusSelect").value;
-            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
-            let localFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : {};
-            let statusText = (status === "Paid") ? "All Dues Clear" : "Pending Payment";
-            localFees[roll] = {
-                name: name, father: father, class: cls, payable: payable, statusText: statusText,
-                history: [{ month: month, challan: "PHS-" + Math.floor(1000 + Math.random() * 9000), amount: "Rs. " + payable.toLocaleString(), status: status, canDownload: status === "Unpaid" ? true : false }]
-            };
-            localStorage.setItem("localFeeDB", JSON.stringify(localFees));
-            document.getElementById("feeAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
-            document.getElementById("feeRoll").value = ""; document.getElementById("feeName").value = "";
-            document.getElementById("feeFather").value = ""; document.getElementById("feeClass").value = "";
-            document.getElementById("feePayable").value = ""; document.getElementById("feeMonth").value = "";
-        }
-
-        function updateSubjectDiary() {
-            let cls = document.getElementById("diaryClass").value;
-            let subject = document.getElementById("diarySubject").value;
-            let content = document.getElementById("diaryContent").value.trim();
-            if(!content) { alert("Homework Details likhein!"); return; }
-            let localDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : {};
-            if(!localDiary[cls]) { localDiary[cls] = {}; }
-            localDiary[cls][subject] = content;
-            localStorage.setItem("localSubjectDiaryDB", JSON.stringify(localDiary));
-            document.getElementById("diaryAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
-            document.getElementById("diaryContent").value = "";
-        }
-
-        function updateAttendanceRecord() {
-            let roll = document.getElementById("attRoll").value.trim();
-            let cls = document.getElementById("attClass").value;
-            let name = document.getElementById("attStudentName").value.trim();
-            let father = document.getElementById("attFatherName").value.trim();
-            let totalDays = document.getElementById("attTotalDays").value;
-            let presents = document.getElementById("attPresents").value.trim();
-            let absents = document.getElementById("attAbsents").value.trim();
-
-            if(!roll || !name || !presents) { 
-                alert("Roll Number, Student Name aur Presents likhna lazmi hai!"); 
-                return; 
-            }
-
-            let percentage = ((parseInt(presents) / parseInt(totalDays)) * 100).toFixed(1) + "%";
-            let attendanceDB = localStorage.getItem("localAttendanceDB") ? JSON.parse(localStorage.getItem("localAttendanceDB")) : {};
-            
-            attendanceDB[roll] = {
-                name: name,
-                father: father,
-                class: cls,
-                totalDays: totalDays,
-                presents: presents,
-                absents: absents || "0",
-                percentage: percentage
-            };
-
-            localStorage.setItem("localAttendanceDB", JSON.stringify(attendanceDB));
-
-            let alertBox = document.getElementById("attendanceAlert");
-            alertBox.style.display = "block";
-            
-            setTimeout(() => { 
-                alertBox.style.display = "none"; 
-            }, 3000);
-
-            document.getElementById("attRoll").value = "";
-            document.getElementById("attStudentName").value = "";
-            document.getElementById("attFatherName").value = "";
-            document.getElementById("attPresents").value = "";
-            document.getElementById("attAbsents").value = "";
-        }
-
-        function uploadExcelResult() {
-            let fileInput = document.getElementById('excelFile');
-            if (fileInput.files.length === 0) { alert("Meharbani karke pehle ek Excel file select karein!"); return; }
         }
     </script>
 </body>
