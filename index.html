@@ -6,6 +6,118 @@
     <title>Pine Hills School</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- Responsive Navbar Overrides --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+        }
+        .nav-links li a {
+            text-decoration: none !important;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+                padding: 10px;
+            }
+            .nav-links {
+                justify-content: center;
+                gap: 8px;
+            }
+            .nav-links li a {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+        }
+
+        /* --- Quick Access Grid (Hero Ke Niche Ke Liye) --- */
+        .quick-access-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin: -30px auto 40px auto; /* Is se yeh hero banner ke sath khubsoorat touch hoga */
+            text-align: center;
+            max-width: 1100px;
+            position: relative;
+            z-index: 10;
+        }
+        .quick-access-box h3 {
+            color: #002147;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        .quick-card-link {
+            text-decoration: none !important;
+            display: block;
+        }
+        .quick-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .quick-card:hover {
+            transform: translateY(-3px);
+            border-color: #0072ff;
+            background: #f0f7ff;
+        }
+        .quick-card i {
+            font-size: 22px;
+            color: #0072ff;
+        }
+        .quick-card span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .quick-access-box { margin-top: 20px; } /* Mobile par gap adjust kiya */
+            .quick-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-card i { font-size: 18px; }
+            .quick-card span { font-size: 12px; }
+        }
+        
+        .card-wrapper-link {
+            text-decoration: none !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -27,6 +139,7 @@
         </div>
     </header>
 
+    <!-- HERO BANNER SECTION -->
     <section id="home" class="hero">
         <div class="container hero-content">
             <h1>Welcome to Pine Hills School</h1>
@@ -38,8 +151,54 @@
         </div>
     </section>
 
+    <!-- FIXED PLACE: QUICK ACCESS MENU (HERO KE BILKUL NICHE) -->
+    <div class="container">
+        <div class="quick-access-box">
+            <h3><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Access Portal Menu</h3>
+            <div class="quick-grid">
+                
+                <a href="syllabus.html" class="quick-card-link">
+                    <div class="quick-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Date Sheet</span>
+                    </div>
+                </a>
+
+                <a href="diary.html" class="quick-card-link">
+                    <div class="quick-card">
+                        <i class="fas fa-book"></i>
+                        <span>Online Diary</span>
+                    </div>
+                </a>
+
+                <a href="results.html" class="quick-card-link">
+                    <div class="quick-card">
+                        <i class="fas fa-poll"></i>
+                        <span>Exam Results</span>
+                    </div>
+                </a>
+
+                <a href="fee-status.html" class="quick-card-link">
+                    <div class="quick-card">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Fee Record</span>
+                    </div>
+                </a>
+
+                <a href="attendance.html" class="quick-card-link">
+                    <div class="quick-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Attendance</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
     <section class="main-content container">
-        
+
+        <!-- STUDENT CORNER -->
         <div id="students" class="portal-section">
             <h2><i class="fas fa-graduation-cap"></i> Student Corner</h2>
             <p>Apni parhai se mutaliq sab kuch yahan dekhain.</p>
@@ -77,9 +236,11 @@
 
         <hr class="section-divider">
 
+        <!-- PARENTS PORTAL -->
         <div id="parents" class="portal-section">
             <h2><i class="fas fa-user-friends"></i> Parents Portal</h2>
             <p>Apne bachon ki hifazat aur behtari ke liye update rahain.</p>
+            
             <div class="grid">
                 
                 <a href="attendance.html" class="card-wrapper-link">
