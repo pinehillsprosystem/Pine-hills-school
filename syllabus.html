@@ -130,7 +130,8 @@
                     </tr>
                 </thead>
                 <tbody id="dateSheetBody">
-                    </tbody>
+                    <tr><td colspan="4" style="text-align: center;">Loading Date Sheet...</td></tr>
+                </tbody>
             </table>
         </div>
     </main>
@@ -141,9 +142,25 @@
         </div>
     </footer>
 
-    <script>
-        // Yahan KG1 se lekar 8th tak ka local system database hai. Aap jab chahein isme paper details badal sakte hain.
-        const dateSheetDatabase = {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase App Configuration Matching Credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "310029732655",
+            appId: "1:310029732655:web:37edd331495239524cefda"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Fallback Database array in case Firestore does not have that class document initialized yet
+        const defaultDateSheetDatabase = {
             "kg1": [
                 { date: "01 June (Monday)", subject: "English Oral & Rhymes", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R1" },
                 { date: "03 June (Wednesday)", subject: "Mathematics (Counting)", time: "09:00 AM - 11:00 AM", room: "Nursery Block - R1" },
@@ -204,46 +221,59 @@
             ]
         };
 
-// Default chalne se pehle check karega ke madam ne admin panel se koi nayi entry to nahi daali
-let adminDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : null;
-if (adminDS) {
-    // Agar admin ne naya data dala hai to default database ko replace/merge kar do
-    Object.keys(adminDS).forEach(clsKey => {
-        dateSheetDatabase[clsKey] = adminDS[clsKey];
-    });
-}
-
-        // Date Sheet Render karne ka function
-        function loadDateSheet() {
+        // Realtime dynamic function exposed globally
+        window.loadDateSheet = function() {
             const selectedClass = document.getElementById("classSelect").value;
             const selectElement = document.getElementById("classSelect");
             const classText = selectElement.options[selectElement.selectedIndex].text;
             
-            // Update upper label heading
+            // Update upper heading label view
             document.getElementById("displayClassName").innerText = classText + " Date Sheet";
             
             const tableBody = document.getElementById("dateSheetBody");
-            tableBody.innerHTML = ""; // Clear existing records
+            tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Checking live database...</td></tr>`;
+
+            // Attaching snapshot listener to the exact document path inside examSchedules collection
+            const docRef = doc(db, "examSchedules", selectedClass);
             
-            const schedule = dateSheetDatabase[selectedClass];
-            
-            if (schedule) {
+            onSnapshot(docRef, (docSnap) => {
+                tableBody.innerHTML = ""; // Flush previous layout lines
+                
+                let schedule = [];
+                
+                if (docSnap.exists() && docSnap.data().papers) {
+                    // If Madam added an updated roster inside admin, fetch it instantly
+                    schedule = docSnap.data().papers;
+                } else {
+                    // Fallback to defaults seamlessly
+                    schedule = defaultDateSheetDatabase[selectedClass] || [];
+                }
+
+                if (schedule.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #dc3545; font-weight: 600;">No papers found for this class.</td></tr>`;
+                    return;
+                }
+
+                // Render out rows safely
                 schedule.forEach(item => {
                     const row = `<tr>
-                        <td><strong>${item.date}</strong></td>
-                        <td>${item.subject}</td>
-                        <td>${item.time}</td>
-                        <td>${item.room}</td>
+                        <td><strong>${item.date || "---"}</strong></td>
+                        <td>${item.subject || "---"}</td>
+                        <td>${item.time || "---"}</td>
+                        <td>${item.room || "---"}</td>
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
-            }
-        }
-
-        // Default running state when page fires up
-        window.onload = function() {
-            loadDateSheet();
+            }, (error) => {
+                console.error("Error reading live date sheet:", error);
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Connection error occurred!</td></tr>`;
+            });
         };
+
+        // Initial setup execution
+        window.addEventListener('DOMContentLoaded', () => {
+            window.loadDateSheet();
+        });
     </script>
 </body>
 </html>
