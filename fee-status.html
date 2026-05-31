@@ -148,7 +148,7 @@
         
         <div class="search-box">
             <h2><i class="fas fa-file-invoice-dollar"></i> Student Fee Portal</h2>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">Bache ka Roll Number enter karke fees ka status aur purani history dekhain. (Demo: 1001 ya 1002)</p>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Bache ka Roll Number enter karke fees ka status aur purani history dekhain.</p>
             <div class="input-group">
                 <input type="text" id="feeRollInput" placeholder="Enter Student Roll Number">
                 <button class="search-btn" onclick="checkFeeStatus()">Check Fees</button>
@@ -177,7 +177,7 @@
                     Current Payable Dues 
                     <span class="amount-highlight" id="payableAmount">Rs. 0</span>
                 </div>
-                <div class="summary-item status-clear-box">
+                <div class="summary-item status-clear-box" id="statusParentBox">
                     Account Status
                     <span class="amount-highlight" id="accountStatus">Clear</span>
                 </div>
@@ -207,97 +207,103 @@
         </div>
     </footer>
 
-    <script>
-        const feeDatabase = {
-            "1001": {
-                name: "Muhammad Ali", father: "Sajid Hussain", class: "Class 9",
-                payable: 0,
-                statusText: "All Dues Clear",
-                history: [
-                    { month: "May 2026", challan: "PHS-9043", amount: "Rs. 4,500", status: "Paid" },
-                    { month: "April 2026", challan: "PHS-8122", amount: "Rs. 4,500", status: "Paid" },
-                    { month: "March 2026", challan: "PHS-7401", amount: "Rs. 4,500", status: "Paid" }
-                ]
-            },
-            "1002": {
-                name: "Ayesha Khan", father: "Kamran Khan", class: "Class 8",
-                payable: 4200,
-                statusText: "Pending Payment",
-                history: [
-                    { month: "May 2026", challan: "PHS-9043", amount: "Rs. 0", status: "unpaid" },
-                    { month: "April 2026", challan: "PHS-8123", amount: "Rs. 4,200", status: "Paid" },
-                    { month: "March 2026", challan: "PHS-7402", amount: "Rs. 4,200", status: "Paid" }
-                ]
-            }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration Matching Your App Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "310029732655",
+            appId: "1:310029732655:web:37edd331495239524cefda"
         };
 
-        let adminFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : null;
-        if (adminFees) {
-            Object.keys(adminFees).forEach(rollKey => {
-                feeDatabase[rollKey] = adminFees[rollKey];
-            });
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        function checkFeeStatus() {
+        // Making the function available globally for the button click
+        window.checkFeeStatus = async function() {
             const roll = document.getElementById("feeRollInput").value.trim();
             const card = document.getElementById("feeCard");
             const err = document.getElementById("feeError");
-            
-            if (feeDatabase[roll]) {
-                err.style.display = "none";
-                const student = feeDatabase[roll];
-                
-                document.getElementById("feeName").innerText = student.name;
-                document.getElementById("feeFather").innerText = student.father;
-                document.getElementById("feeClass").innerText = student.class;
-                document.getElementById("feeRoll").innerText = roll;
-                
-                const payableBox = document.getElementById("payableAmount");
-                const statusBox = document.getElementById("accountStatus");
-                const statusParentBox = statusBox.parentElement;
-                
-                payableBox.innerText = "Rs. " + student.payable.toLocaleString();
-                statusBox.innerText = student.statusText;
-                
-                if(student.payable > 0) {
-                    statusParentBox.className = "summary-item";
-                    statusParentBox.style.backgroundColor = "#f8d7da";
-                    statusParentBox.style.color = "#721c24";
-                    statusParentBox.style.border = "1px solid #f5c6cb";
-                } else {
-                    statusParentBox.className = "summary-item status-clear-box";
-                    statusParentBox.style.backgroundColor = "#d4edda";
-                    statusParentBox.style.color = "#155724";
-                    statusParentBox.style.border = "1px solid #c3e6cb";
-                }
 
-                const tableBody = document.getElementById("feeTableBody");
-                tableBody.innerHTML = "";
-                
-                student.history.forEach(item => {
-                    const statusBadge = item.status === "Paid" ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Unpaid</span>';
-                    const actionBtn = `<button class="download-btn" onclick="triggerPrintReceipt()"><i class="fas fa-print"></i> Print Slip</button>`;
+            if (!roll) {
+                alert("Please enter a roll number first.");
+                return;
+            }
+
+            try {
+                // Directly querying the specific document inside your Firestore database collection
+                const docRef = doc(db, "feeRecords", roll);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const student = docSnap.data();
+                    err.style.display = "none";
+
+                    // Inverting structural layout strings cleanly
+                    document.getElementById("feeName").innerText = student.name || "---";
+                    document.getElementById("feeFather").innerText = student.father || "---";
+                    document.getElementById("feeClass").innerText = student.class || "---";
+                    document.getElementById("feeRoll").innerText = roll;
+
+                    const payableBox = document.getElementById("payableAmount");
+                    const statusBox = document.getElementById("accountStatus");
+                    const statusParentBox = document.getElementById("statusParentBox");
+
+                    // Standardize dynamic values securely 
+                    const numericPayable = parseFloat(student.payable) || 0;
+                    payableBox.innerText = "Rs. " + numericPayable.toLocaleString();
+
+                    // Map Status Flags Cleanly
+                    if (student.status === "Paid") {
+                        statusBox.innerText = "All Dues Clear";
+                        statusParentBox.className = "summary-item status-clear-box";
+                        statusParentBox.style.backgroundColor = "#d4edda";
+                        statusParentBox.style.color = "#155724";
+                        statusParentBox.style.border = "1px solid #c3e6cb";
+                    } else {
+                        statusBox.innerText = "Pending Payment";
+                        statusParentBox.className = "summary-item";
+                        statusParentBox.style.backgroundColor = "#f8d7da";
+                        statusParentBox.style.color = "#721c24";
+                        statusParentBox.style.border = "1px solid #f5c6cb";
+                    }
+
+                    // Dynamically creating history logs inside the statement body
+                    const tableBody = document.getElementById("feeTableBody");
+                    tableBody.innerHTML = "";
+
+                    // Since Firestore updates field documents directly, we showcase the matching month log line
+                    const currentMonthStr = student.month ? student.month.charAt(0).toUpperCase() + student.month.slice(1) + " 2026" : "Current Month";
+                    const statusBadge = student.status === "Paid" ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Unpaid</span>';
                     
                     const row = `<tr>
-                        <td data-label="Month">${item.month}</td>
-                        <td data-label="Challan No.">${item.challan}</td>
-                        <td data-label="Due Amount">${item.amount}</td>
+                        <td data-label="Month">${currentMonthStr}</td>
+                        <td data-label="Challan No.">PHS-${Math.floor(1000 + Math.random() * 9000)}</td>
+                        <td data-label="Due Amount">Rs. ${numericPayable.toLocaleString()}</td>
                         <td data-label="Status">${statusBadge}</td>
-                        <td data-label="Action">${actionBtn}</td>
+                        <td data-label="Action"><button class="download-btn" onclick="triggerPrintReceipt()"><i class="fas fa-print"></i> Print Slip</button></td>
                     </tr>`;
-                    tableBody.innerHTML += row;
-                });
-                
-                card.style.display = "block";
-            } else {
-                card.style.display = "none";
-                err.style.display = "block";
+                    
+                    tableBody.innerHTML = row;
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                    err.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Firestore loading errors:", error);
+                alert("Database connection issues occurred while grabbing details.");
             }
-        }
+        };
 
-        function triggerPrintReceipt() {
+        window.triggerPrintReceipt = function() {
             window.print();
-        }
+        };
     </script>
 </body>
 </html>
