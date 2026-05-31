@@ -34,7 +34,6 @@
         .stat-percentage { background: var(--light-blue); color: var(--dark-blue); border: 1px solid rgba(0,86,179,0.1); }
         .stat-number { display: block; font-size: 24px; font-weight: 700; margin-top: 5px; }
 
-        .calendar-title { color: var(--dark-blue); font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; background: var(--light-gray); padding: 15px; border-radius: 8px; }
         .day-name { font-weight: 600; color: var(--text-muted); font-size: 13px; padding-bottom: 5px; border-bottom: 1px solid #ddd; }
         .day-cell { padding: 10px 0; border-radius: 5px; font-weight: 600; font-size: 14px; background: var(--pure-white); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -44,7 +43,6 @@
         .leave-status { background-color: #ffc107 !important; color: #333; }
         .off-status { background-color: #e2e3e5 !important; color: #666; }
 
-        /* 📱 RESPONSIVE FIXES (Design wahi rahega) */
         @media (max-width: 600px) {
             .student-details { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr; gap: 10px; }
@@ -89,7 +87,9 @@
             </div>
             <div class="student-details">
                 <div><strong>Student Name:</strong> <span id="attName"></span></div>
+                <div><strong>Father Name:</strong> <span id="attFather"></span></div>
                 <div><strong>Roll Number:</strong> <span id="attRoll"></span></div>
+                <div><strong>Class:</strong> <span id="attClass"></span></div>
             </div>
             <div class="stats-grid">
                 <div class="stat-box stat-present">Presents <span class="stat-number" id="totalPresents">0</span></div>
@@ -109,23 +109,89 @@
     </footer>
 
     <script>
+        // Fallback Hardcoded Data
         const attendanceDatabase = {
-            "1001": { name: "Muhammad Ali", days: ["P","P","P","P","P","P","Sun", "P","P","A","P","P","P","Sun", "P","P","P","P","L","P","Sun", "P","P","P","P","P","P","Sun", "P","P","P"] }
+            "1001": { name: "Muhammad Ali", father: "Sajid Hussain", class: "Class 5", days: ["P","P","P","P","P","P","Sun", "P","P","A","P","P","P","Sun", "P","P","P","P","L","P","Sun", "P","P","P","P","P","P","Sun", "P","P","P"] }
         };
 
         function checkAttendance() {
             const roll = document.getElementById("attRollInput").value.trim();
             const card = document.getElementById("attCard");
-            if (attendanceDatabase[roll]) {
-                document.getElementById("attName").innerText = attendanceDatabase[roll].name;
+            const grid = document.getElementById("calendarGrid");
+            
+            if (!roll) { alert("Meharbani karke Roll Number likhein!"); return; }
+
+            let targetDaysArray = [];
+            let studentName = "";
+            let fatherName = "";
+            let studentClass = "";
+
+            // 1. Dynamic Local Storage Check
+            let localAttendanceDB = localStorage.getItem("localAttendanceDB") ? JSON.parse(localStorage.getItem("localAttendanceDB")) : null;
+
+            if (localAttendanceDB && localAttendanceDB[roll]) {
+                let adminData = localAttendanceDB[roll];
+                studentName = adminData.studentName;
+                fatherName = adminData.fatherName;
+                studentClass = adminData.studentClass || "N/A";
+                
+                // Construct Grid Array automatically
+                let generatedDays = [];
+                let pRemaining = adminData.presentsCount;
+                let aRemaining = adminData.absentsCount;
+                
+                for (let i = 1; i <= adminData.totalDays; i++) {
+                    if (i % 7 === 0) {
+                        generatedDays.push("Sun");
+                    } else if (pRemaining > 0) {
+                        generatedDays.push("P");
+                        pRemaining--;
+                    } else if (aRemaining > 0) {
+                        generatedDays.push("A");
+                        aRemaining--;
+                    } else {
+                        generatedDays.push("P");
+                    }
+                }
+                targetDaysArray = generatedDays;
+
+            } else if (attendanceDatabase[roll]) {
+                // 2. Static Code Fallback
+                studentName = attendanceDatabase[roll].name;
+                fatherName = attendanceDatabase[roll].father;
+                studentClass = attendanceDatabase[roll].class;
+                targetDaysArray = attendanceDatabase[roll].days;
+            }
+
+            if (targetDaysArray.length > 0) {
+                // UI populate 
+                document.getElementById("attName").innerText = studentName;
+                document.getElementById("attFather").innerText = fatherName;
                 document.getElementById("attRoll").innerText = roll;
-                const grid = document.getElementById("calendarGrid");
+                document.getElementById("attClass").innerText = studentClass;
+                
+                // Math Stats
+                let presents = targetDaysArray.filter(d => d === "P").length;
+                let absents = targetDaysArray.filter(d => d === "A").length;
+                let totalWorking = targetDaysArray.filter(d => d !== "Sun").length;
+                let pct = totalWorking > 0 ? Math.round((presents / totalWorking) * 100) + "%" : "0%";
+
+                document.getElementById("totalPresents").innerText = presents;
+                document.getElementById("totalAbsents").innerText = absents;
+                document.getElementById("attPercentage").innerText = pct;
+
+                // Calendar Builder
                 grid.innerHTML = `<div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>`;
-                attendanceDatabase[roll].days.forEach((status, i) => {
+                
+                targetDaysArray.forEach((status, i) => {
                     let css = status === "P" ? "p-status" : (status === "A" ? "a-status" : (status === "L" ? "leave-status" : "off-status"));
                     grid.innerHTML += `<div class="day-cell ${css}">${i + 1}</div>`;
                 });
+
                 card.style.display = "block";
+            } else {
+                alert("Roll number nahi mila!");
+                card.style.display = "none";
             }
         }
     </script>
