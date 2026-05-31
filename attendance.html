@@ -77,7 +77,7 @@
             <h2><i class="fas fa-user-check"></i> Track Student Attendance</h2>
             <div class="input-group">
                 <input type="text" id="attRollInput" placeholder="Enter Roll Number">
-                <button class="search-btn" onclick="checkAttendance()">Check Report</button>
+                <button class="search-btn" id="searchBtn" onclick="checkAttendance()">Check Report</button>
             </div>
         </div>
 
@@ -108,90 +108,114 @@
         </div>
     </footer>
 
-    <script>
-        // Fallback Hardcoded Data
-        const attendanceDatabase = {
-            "1001": { name: "Muhammad Ali", father: "Sajid Hussain", class: "Class 5", days: ["P","P","P","P","P","P","Sun", "P","P","A","P","P","P","Sun", "P","P","P","P","L","P","Sun", "P","P","P","P","P","P","Sun", "P","P","P"] }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "310029732655",
+            appId: "1:310029732655:web:37edd331495239524cefda"
         };
 
-        function checkAttendance() {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkAttendance = async function() {
             const roll = document.getElementById("attRollInput").value.trim();
             const card = document.getElementById("attCard");
             const grid = document.getElementById("calendarGrid");
+            const searchBtn = document.getElementById("searchBtn");
             
-            if (!roll) { alert("Meharbani karke Roll Number likhein!"); return; }
-
-            let targetDaysArray = [];
-            let studentName = "";
-            let fatherName = "";
-            let studentClass = "";
-
-            // 1. Dynamic Local Storage Check
-            let localAttendanceDB = localStorage.getItem("localAttendanceDB") ? JSON.parse(localStorage.getItem("localAttendanceDB")) : null;
-
-            if (localAttendanceDB && localAttendanceDB[roll]) {
-                let adminData = localAttendanceDB[roll];
-                studentName = adminData.studentName;
-                fatherName = adminData.fatherName;
-                studentClass = adminData.studentClass || "N/A";
-                
-                // Construct Grid Array automatically
-                let generatedDays = [];
-                let pRemaining = adminData.presentsCount;
-                let aRemaining = adminData.absentsCount;
-                
-                for (let i = 1; i <= adminData.totalDays; i++) {
-                    if (i % 7 === 0) {
-                        generatedDays.push("Sun");
-                    } else if (pRemaining > 0) {
-                        generatedDays.push("P");
-                        pRemaining--;
-                    } else if (aRemaining > 0) {
-                        generatedDays.push("A");
-                        aRemaining--;
-                    } else {
-                        generatedDays.push("P");
-                    }
-                }
-                targetDaysArray = generatedDays;
-
-            } else if (attendanceDatabase[roll]) {
-                // 2. Static Code Fallback
-                studentName = attendanceDatabase[roll].name;
-                fatherName = attendanceDatabase[roll].father;
-                studentClass = attendanceDatabase[roll].class;
-                targetDaysArray = attendanceDatabase[roll].days;
+            if (!roll) { 
+                alert("Meharbani karke Roll Number likhein!"); 
+                return; 
             }
 
-            if (targetDaysArray.length > 0) {
-                // UI populate 
-                document.getElementById("attName").innerText = studentName;
-                document.getElementById("attFather").innerText = fatherName;
-                document.getElementById("attRoll").innerText = roll;
-                document.getElementById("attClass").innerText = studentClass;
-                
-                // Math Stats
-                let presents = targetDaysArray.filter(d => d === "P").length;
-                let absents = targetDaysArray.filter(d => d === "A").length;
-                let totalWorking = targetDaysArray.filter(d => d !== "Sun").length;
-                let pct = totalWorking > 0 ? Math.round((presents / totalWorking) * 100) + "%" : "0%";
+            // UI State Initialization
+            searchBtn.innerText = "Tracking...";
+            searchBtn.disabled = true;
+            card.style.display = "none";
 
-                document.getElementById("totalPresents").innerText = presents;
-                document.getElementById("totalAbsents").innerText = absents;
-                document.getElementById("attPercentage").innerText = pct;
+            try {
+                // Fetch attendance matching structural node
+                const docRef = doc(db, "studentAttendance", roll);
+                const docSnap = await getDoc(docRef);
 
-                // Calendar Builder
-                grid.innerHTML = `<div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>`;
-                
-                targetDaysArray.forEach((status, i) => {
-                    let css = status === "P" ? "p-status" : (status === "A" ? "a-status" : (status === "L" ? "leave-status" : "off-status"));
-                    grid.innerHTML += `<div class="day-cell ${css}">${i + 1}</div>`;
-                });
+                if (docSnap.exists()) {
+                    const attData = docSnap.data();
 
-                card.style.display = "block";
-            } else {
-                alert("Roll number nahi mila!");
-                card.style.display = "none";
+                    // Map Standard Information Properties safely
+                    document.getElementById("attName").innerText = attData.studentName || attData.name || "---";
+                    document.getElementById("attFather").innerText = attData.fatherName || attData.father || "---";
+                    document.getElementById("attRoll").innerText = roll;
+                    document.getElementById("attClass").innerText = attData.studentClass || attData.class || "---";
+
+                    let targetDaysArray = [];
+
+                    // If database has complex real array saved, map directly
+                    if (attData.days && Array.isArray(attData.days)) {
+                        targetDaysArray = attData.days;
+                    } else if (attData.totalDays) {
+                        // Reconstruct array safely if admin uploaded metadata counters
+                        let generatedDays = [];
+                        let pRemaining = parseInt(attData.presentsCount) || 0;
+                        let aRemaining = parseInt(attData.absentsCount) || 0;
+                        let totalDaysCount = parseInt(attData.totalDays) || 30;
+
+                        for (let i = 1; i <= totalDaysCount; i++) {
+                            if (i % 7 === 0) {
+                                generatedDays.push("Sun");
+                            } else if (pRemaining > 0) {
+                                generatedDays.push("P");
+                                pRemaining--;
+                            } else if (aRemaining > 0) {
+                                generatedDays.push("A");
+                                aRemaining--;
+                            } else {
+                                generatedDays.push("P");
+                            }
+                        }
+                        targetDaysArray = generatedDays;
+                    }
+
+                    if (targetDaysArray.length > 0) {
+                        // Calculate Math Matrix parameters
+                        let presents = targetDaysArray.filter(d => d === "P").length;
+                        let absents = targetDaysArray.filter(d => d === "A").length;
+                        let totalWorking = targetDaysArray.filter(d => d !== "Sun").length;
+                        let pct = totalWorking > 0 ? Math.round((presents / totalWorking) * 100) + "%" : "0%";
+
+                        document.getElementById("totalPresents").innerText = presents;
+                        document.getElementById("totalAbsents").innerText = absents;
+                        document.getElementById("attPercentage").innerText = pct;
+
+                        // Build Visual Grid Array Elements dynamically
+                        grid.innerHTML = `<div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>`;
+                        
+                        targetDaysArray.forEach((status, i) => {
+                            let css = status === "P" ? "p-status" : (status === "A" ? "a-status" : (status === "L" ? "leave-status" : "off-status"));
+                            grid.innerHTML += `<div class="day-cell ${css}">${i + 1}</div>`;
+                        });
+
+                        card.style.display = "block";
+                    } else {
+                        alert("Attendance days matrix logic missing for this profile.");
+                    }
+
+                } else {
+                    alert("Roll number nahi mila! Meharbani farma kar database check karein.");
+                }
+
+            } catch (error) {
+                console.error("Firestore operation tracking failed:", error);
+                alert("Database synchronization error! Page refresh karke dobara try karein.");
+            } finally {
+                searchBtn.innerText = "Check Report";
+                searchBtn.disabled = false;
             }
         }
     </script>
