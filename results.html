@@ -327,14 +327,14 @@
                         { label: "Drawing", aliases: ["drawing", "art"] }
                     ];
 
-                    // Loop through subjects in strict sequence and render ONLY IF values exist and are NOT 0
+                    // Loop through subjects in strict sequence and render if data exists
                     subjectsConfig.forEach(sub => {
                         let marks = getSubjectValue(sub.aliases);
                         
-                        // Strict condition: agar marks null, undefined, khali string, ya 0 hain to hide rakho
+                        // Hamesha render karega agar data khali string na ho
                         if (marks !== null && marks !== undefined) {
                             let checkStr = String(marks).trim();
-                            if (checkStr !== "" && checkStr !== "0" && checkStr !== 0) {
+                            if (checkStr !== "") {
                                 const row = `<tr>
                                     <td><strong>${sub.label}</strong></td>
                                     <td style="text-align: right;" class="marks-val">${marks}</td>
