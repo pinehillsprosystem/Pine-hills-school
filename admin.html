@@ -3,297 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Admin Portal - Pine Hills School</title>
+    <title>Pine Hills School</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .admin-container { padding: 30px 0; max-width: 900px !important; }
+        /* --- Actual School Logo Styling --- */
+        .school-brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 33, 71, 0.15);
+            border: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
         
-        /* Premium Tab Menu Styling */
+        .school-brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Responsive Navbar Fixed & Cleaned --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            gap: 15px;
+        }
+        .nav-branding-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .school-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #002147;
+            white-space: nowrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+        .nav-links li a {
+            text-decoration: none !important;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e293b;
+            transition: 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+        .nav-links li a:hover, .nav-links li a.active {
+            color: #0072ff;
+            background: #f0f7ff;
+        }
+        .admin-login-btn {
+            background: #e0f2fe;
+            color: #0369a1 !important;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .admin-login-btn:hover {
+            background: #0072ff !important;
+            color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+                padding: 15px 10px;
+            }
+            .nav-branding-group {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .school-name {
+                font-size: 20px;
+            }
+            .nav-links {
+                justify-content: center;
+                gap: 5px;
+                width: 100%;
+            }
+            .nav-links li a {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            .admin-login-btn { display: none !important; }
+        }
+
+        @media (max-width: 380px) {
+            .nav-links {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .nav-links li {
+                text-align: center;
+            }
+        }
+
+        /* --- Quick Access Grid --- */
+        .quick-access-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin: -30px auto 40px auto;
+            text-align: center;
+            max-width: 1100px;
+            position: relative;
+            z-index: 10;
+        }
+        .quick-access-box h3 { color: #002147; font-size: 18px; margin-bottom: 15px; font-weight: 700; }
+        .quick-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .quick-card-link { text-decoration: none !important; display: block; }
+        .quick-card {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 15px 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s ease;
+        }
+        .quick-card:hover { transform: translateY(-3px); border-color: #0072ff; background: #f0f7ff; }
+        .quick-card i { font-size: 22px; color: #0072ff; }
+        .quick-card span { font-size: 13px; font-weight: 600; color: #1e293b; }
+
+        @media (max-width: 768px) {
+            .quick-access-box { margin-top: 20px; }
+            .quick-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .quick-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-card i { font-size: 18px; } .quick-card span { font-size: 12px; }
+        }
+
+        /* --- Secret Login Modal --- */
+        .login-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 33, 71, 0.6); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .login-content {
+            background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; text-align: center;
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #64748b; }
+        .login-content h3 { margin-bottom: 20px; color: #002147; }
+        .login-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; text-align: left; }
+        .login-group label { font-weight: 600; color: #333; }
+        .login-group input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
+
+        /* --- RESTORED: Premium Admin Tabbed Panel --- */
+        .integrated-admin-container {
+            display: none; 
+            background: #ffffff; 
+            border: 2px solid #e2e8f0; 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin: 30px 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .admin-container { padding: 10px 0; max-width: 100% !important; }
+        
+        /* Restored Menu Layout & Tab Styling */
         .admin-menu { 
             display: flex; 
             flex-wrap: wrap; 
-            gap: 10px; 
+            gap: 12px; 
             margin-bottom: 30px; 
-            background: #fff; 
+            background: #f8fafc; 
             padding: 10px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 14px; 
+            border: 1px solid #e2e8f0;
         }
         .menu-btn { 
-            flex: 1;
-            min-width: 150px;
-            background: #f1f5f9; 
-            color: #475569; 
+            flex: 1; 
+            min-width: 140px; 
+            background: transparent; 
+            color: #64748b; 
             border: none; 
-            padding: 12px 15px; 
-            border-radius: 8px; 
+            padding: 12px 18px; 
+            border-radius: 10px; 
             font-weight: 600; 
             font-size: 14px; 
             cursor: pointer; 
-            transition: 0.3s ease; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+        .menu-btn:hover { 
+            background: #f1f5f9; 
+            color: #0f172a; 
+        }
+        .menu-btn.active { 
+            background: #0072ff; 
+            color: #ffffff; 
+            box-shadow: 0 4px 14px rgba(0, 114, 255, 0.25); 
+        }
+        
+        /* Restored Box Panel Styling */
+        .admin-box { 
+            display: none; 
+            background: #ffffff; 
+            padding: 0; 
+            border-radius: 0; 
+            border: none; 
+            box-shadow: none; 
+            animation: fadeIn 0.4s ease; 
+        }
+        .admin-box.active { display: block; }
+        
+        /* Restored Form Elements Aesthetic */
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+        .form-group label { font-weight: 600; color: #1e293b; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { 
+            padding: 12px 16px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 15px; 
+            outline: none; 
+            background: #ffffff; 
+            color: #0f172a;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+        }
+        
+        /* Restored Buttons & Alerts Styling */
+        .admin-btn { 
+            background: #0072ff; 
+            color: #ffffff; 
+            border: none; 
+            padding: 14px 24px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            width: 100%; 
+            font-size: 15px; 
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
         }
-        .menu-btn:hover { background: #f0f7ff; color: #002147; }
-        .menu-btn.active { 
-            background: #0072ff; 
-            color: white; 
-            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
+        .admin-btn:hover { 
+            background: #0056c6; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 114, 255, 0.2);
         }
-
-        /* Content Sections Toggle */
-        .admin-box { 
+        .admin-btn:active {
+            transform: translateY(0);
+        }
+        
+        .success-alert { 
             display: none; 
+            background: #ecfdf5; 
+            color: #065f46; 
+            border: 1px solid #a7f3d0; 
+            padding: 14px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            text-align: center; 
+            font-size: 14px;
+        }
+        .excel-info { 
             background: #f8fafc; 
-            padding: 30px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
-            animation: fadeIn 0.4s ease;
+            padding: 16px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            color: #475569; 
+            line-height: 1.6; 
+            border: 1px solid #e2e8f0;
         }
-        .admin-box.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-weight: 600; color: #333; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
         
-        .admin-btn { background: #0072ff; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; }
-        .admin-btn:hover { background: #0056c6; }
-        
-        .success-alert { display: none; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 12px; border-radius: 6px; margin-top: 10px; font-weight: 600; text-align: center; }
-        .excel-info { background: #e2e3e5; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #383d41; line-height: 1.5; }
-        .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (max-width: 600px) { 
-            .grid-3col, .grid-2col { grid-template-columns: 1fr; } 
-            .admin-menu { flex-direction: column; }
-        }
+        .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        @media (max-width: 600px) { .grid-3col, .grid-2col { grid-template-columns: 1fr; gap: 10px; } .admin-menu { flex-direction: column; } }
+        .card-wrapper-link { text-decoration: none !important; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="container navbar">
-            <div class="school-name">Pine Hills School (Admin Dashboard)</div>
+            <div class="nav-branding-group">
+                <div class="school-brand-logo">
+                    <img src="real logo copy.jpg" alt="Pine Hills School Logo">
+                </div>
+                <div class="school-name">Pine Hills School</div>
+            </div>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html">View Website</a></li>
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#students">Students</a></li>
+                    <li><a href="#parents">Parents</a></li>
+                    <li><a href="contact-teachers.html">Contact</a></li>
+                    <li><a class="admin-login-btn" id="loginToggleBtn" onclick="toggleLoginModal()"><i class="fas fa-lock"></i> Medum Login</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <main class="container admin-container">
-        <h1 style="color: #002147; margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Management Admin Panel</h1>
+    <section id="home" class="hero">
+        <div class="container hero-content">
+            <h1>Welcome to Pine Hills School</h1>
+            <p>Nurturing Minds, Shaping Futures. A dedicated platform for our students and parents.</p>
+            <div class="hero-buttons">
+                <a href="#students" class="btn btn-primary">Student Zone</a>
+                <a href="#parents" class="btn btn-secondary">Parent Portal</a>
+            </div>
+        </div>
+    </section>
 
-        <div class="admin-menu">
-            <button class="menu-btn active" onclick="openSection(event, 'sec-datesheet')"><i class="fas fa-calendar-alt"></i> Date Sheet</button>
-            <button class="menu-btn" onclick="openSection(event, 'sec-diary')"><i class="fas fa-book-open"></i> Online Diary</button>
-            <button class="menu-btn" onclick="openSection(event, 'sec-results')"><i class="fas fa-file-excel"></i> Exam Results</button>
-            <button class="menu-btn" onclick="openSection(event, 'sec-fees')"><i class="fas fa-file-invoice-dollar"></i> Fee Record</button>
-            <button class="menu-btn" onclick="openSection(event, 'sec-attendance')"><i class="fas fa-user-check"></i> Attendance</button>
+    <div class="container">
+        <div class="quick-access-box">
+            <h3><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Access Portal Menu</h3>
+            <div class="quick-grid">
+                <a href="syllabus.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-calendar-alt"></i><span>Date Sheet</span></div></a>
+                <a href="diary.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-book"></i><span>Online Diary</span></div></a>
+                <a href="results.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-poll"></i><span>Exam Results</span></div></a>
+                <a href="fee-status.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-file-invoice-dollar"></i><span>Fee Record</span></div></a>
+                <a href="attendance.html" class="quick-card-link"><div class="quick-card"><i class="fas fa-calendar-check"></i><span>Attendance</span></div></a>
+            </div>
+        </div>
+    </div>
+
+    <section class="main-content container">
+
+        <div id="secretAdminPanel" class="integrated-admin-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">
+                <h2 style="color: #002147; margin:0; font-size:22px; font-weight:700;"><i class="fas fa-user-shield" style="color:#0072ff;"></i> Management Admin Panel</h2>
+                <button onclick="logoutAdmin()" style="background:#ef4444; color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:0.2s;"><i class="fas fa-sign-out-alt"></i> Logout Panel</button>
+            </div>
+
+            <div class="admin-container">
+                <div class="admin-menu">
+                    <button class="menu-btn active" onclick="openSection(event, 'sec-datesheet')"><i class="fas fa-calendar-alt"></i> Date Sheet</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-diary')"><i class="fas fa-book-open"></i> Online Diary</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-results')"><i class="fas fa-file-excel"></i> Exam Results</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-fees')"><i class="fas fa-file-invoice-dollar"></i> Fee Record</button>
+                    <button class="menu-btn" onclick="openSection(event, 'sec-attendance')"><i class="fas fa-user-check"></i> Attendance</button>
+                </div>
+
+                <div id="sec-datesheet" class="admin-box active">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-calendar-alt" style="color:#0072ff;"></i> 1. Update Date Sheet (Add Exam)</h3>
+                    <div class="form-group">
+                        <label>Select Class:</label>
+                        <select id="dsClass">
+                            <option value="kg1">KG 1</option><option value="kg2">KG 2</option>
+                            <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                            <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                            <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                            <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Day:</label>
+                        <input type="text" id="dsDate" placeholder="01 June (Monday)">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject Name:</label>
+                        <input type="text" id="dsSubject" placeholder="Mathematics">
+                    </div>
+                    <div class="form-group">
+                        <label>Exam Timing:</label>
+                        <input type="text" id="dsTime" placeholder="08:30 AM - 11:30 AM">
+                    </div>
+                    <div class="form-group">
+                        <label>Room / Block No:</label>
+                        <input type="text" id="dsRoom" placeholder="Block A - Room 102">
+                    </div>
+                    <button class="admin-btn" onclick="addDateSheet()"><i class="fas fa-plus"></i> Add to Date Sheet</button>
+                    <div id="dsAlert" class="success-alert">Date Sheet Updated Successfully!</div>
+                </div>
+
+                <div id="sec-diary" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-book-open" style="color:#0072ff;"></i> 2. Update Online Diary Subject Wise</h3>
+                    <div class="form-group">
+                        <label>Select Class:</label>
+                        <select id="diaryClass">
+                            <option value="class1">Class 1</option><option value="class2">Class 2</option>
+                            <option value="class3">Class 3</option><option value="class4">Class 4</option>
+                            <option value="class5">Class 5</option><option value="class6">Class 6</option>
+                            <option value="class7">Class 7</option><option value="class8">Class 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Subject:</label>
+                        <select id="diarySubject">
+                            <option value="English">English</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Urdu">Urdu</option>
+                            <option value="Science">Science</option>
+                            <option value="Social Studies">Social Studies</option>
+                            <option value="Islamiyat">Islamiyat</option>
+                            <option value="Computer Science">Computer Science</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Homework Details:</label>
+                        <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
+                    </div>
+                    <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
+                    <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
+                </div>
+
+                <div id="sec-results" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:10px;"><i class="fas fa-file-excel" style="color:#28a745;"></i> 3. Upload Exam Results via Excel File</h3>
+                    <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
+                    <div class="excel-info">
+                        <strong>Excel Sheet Column Structure Rules:</strong><br>
+                        <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>G.k</code>, <code>drawing</code>, <code>attendance</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Excel File (.xlsx / .xls):</label>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" style="border: 1px dashed #cbd5e1; padding: 15px; background: #f8fafc;">
+                    </div>
+                    <button class="admin-btn" style="background:#28a745; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
+                    <div id="resultAlert" class="success-alert">Excel Results Uploaded Successfully!</div>
+                </div>
+
+                <div id="sec-fees" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:15px;"><i class="fas fa-file-invoice-dollar" style="color:#0072ff;"></i> 4. Update Student Fee Record</h3>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Roll Number:</label>
+                            <input type="text" id="feeRoll" placeholder="e.g. 1001">
+                        </div>
+                        <div class="form-group">
+                            <label>Student Name:</label>
+                            <input type="text" id="feeName" placeholder="Muhammad Ali">
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Father Name:</label>
+                            <input type="text" id="feeFather" placeholder="Sajid Hussain">
+                        </div>
+                        <div class="form-group">
+                            <label>Class:</label>
+                            <input type="text" id="feeClass" placeholder="Class 5">
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Current Payable Dues (Rs.):</label>
+                            <input type="number" id="feePayable" placeholder="e.g. 4500">
+                        </div>
+                        <div class="form-group">
+                            <label>Fee Month Name:</label>
+                            <input type="text" id="feeMonth" placeholder="e.g. May 2026">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Fee Status:</label>
+                        <select id="feeStatusSelect">
+                            <option value="Paid">Paid (Fees Jama Ho Gai)</option>
+                            <option value="Unpaid">Unpaid (Fees Rehti Hai)</option>
+                        </select>
+                    </div>
+                    <button class="admin-btn" onclick="updateFeeRecord()"><i class="fas fa-save"></i> Save Student Fee Record</button>
+                    <div id="feeAlert" class="success-alert">Student Fee Record Saved Successfully!</div>
+                </div>
+
+                <div id="sec-attendance" class="admin-box">
+                    <h3 style="color:#002147; font-size:18px; margin-bottom:10px;"><i class="fas fa-user-check" style="color:#0284c7;"></i> 5. Update Attendance</h3>
+                    <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Madam! Yahan bache ki details aur presents/absents ke total numbers likh dein.</p>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Roll Number:</label>
+                            <input type="text" id="attRoll" placeholder="e.g. 1001">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Class:</label>
+                            <select id="attClass">
+                                <option value="KG 1">KG 1</option><option value="KG 2">KG 2</option>
+                                <option value="Class 1">Class 1</option><option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option><option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option><option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option><option value="Class 8">Class 8</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>Student Name:</label>
+                            <input type="text" id="attStudentName" placeholder="e.g. Muhammad Ali">
+                        </div>
+                        <div class="form-group">
+                            <label>Father Name:</label>
+                            <input type="text" id="attFatherName" placeholder="e.g. Sajid Hussain">
+                        </div>
+                    </div>
+                    <div class="grid-3col">
+                        <div class="form-group">
+                            <label>Total School Days:</label>
+                            <input type="number" id="attTotalDays" value="30" placeholder="e.g. 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Presents:</label>
+                            <input type="number" id="attPresents" placeholder="e.g. 26">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Absents:</label>
+                            <input type="number" id="attAbsents" placeholder="e.g. 4">
+                        </div>
+                    </div>
+                    <button class="admin-btn" style="background:#0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);" onclick="updateAttendanceRecord()"><i class="fas fa-save"></i> Save Attendance Report</button>
+                    <div id="attendanceAlert" class="success-alert">Attendance Records Saved Successfully!</div>
+                </div>
+            </div>
+        </div>
+        <div id="students" class="portal-section">
+            <h2><i class="fas fa-graduation-cap"></i> Student Corner</h2>
+            <p>Apni parhai se mutaliq sab kuch yahan dekhain.</p>
+            <div class="grid">
+                <a href="syllabus.html" class="card-wrapper-link"><div class="card"><i class="fas fa-calendar-alt card-icon"></i><h3>Date Sheet</h3><p>Exam dates aur syllabus download karein.</p><span class="card-link">View Details →</span></div></a>
+                <a href="diary.html" class="card-wrapper-link"><div class="card"><i class="fas fa-book card-icon"></i><h3>Online Diary</h3><p>Apna rozana ka homework aur school diary check karein.</p><span class="card-link">View Diary →</span></div></a>
+                <a href="results.html" class="card-wrapper-link"><div class="card"><i class="fas fa-poll card-icon"></i><h3>Exam Results</h3><p>Apne term aur final exams ke results check karein.</p><span class="card-link">Check Result →</span></div></a>
+            </div>
         </div>
 
-        <div id="sec-datesheet" class="admin-box active">
-            <h2><i class="fas fa-calendar-alt"></i> 1. Update Date Sheet (Add Exam)</h2>
-            <div class="form-group">
-                <label>Select Class:</label>
-                <select id="dsClass">
-                    <option value="kg1">KG 1</option><option value="kg2">KG 2</option>
-                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
-                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
-                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
-                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
-                </select>
+        <hr class="section-divider">
+
+        <div id="parents" class="portal-section">
+            <h2><i class="fas fa-user-friends"></i> Parents Portal</h2>
+            <p>Apne bachon ki hifazat aur behtari ke liye update rahain.</p>
+            <div class="grid">
+                <a href="attendance.html" class="card-wrapper-link"><div class="card"><i class="fas fa-calendar-check card-icon"></i><h3>Attendance Report</h3><p>Bache ki rozana ki attendance check karein.</p><span class="card-link">View Attendance →</span></div></a>
+                <a href="fee-status.html" class="card-wrapper-link"><div class="card"><i class="fas fa-file-invoice-dollar card-icon"></i><h3>Fee Status</h3><p>School fees ka challan aur payment history dekhain.</p><span class="card-link">View Fee →</span></div></a>
+                <a href="contact-teachers.html" class="card-wrapper-link"><div class="card"><i class="fas fa-comments card-icon"></i><h3>Teacher Connection</h3><p>Teachers se raabta karein aur remarks check karein.</p><span class="card-link">Contact Teacher →</span></div></a>
             </div>
-            <div class="form-group">
-                <label>Date & Day:</label>
-                <input type="text" id="dsDate" placeholder="01 June (Monday)">
-            </div>
-            <div class="form-group">
-                <label>Subject Name:</label>
-                <input type="text" id="dsSubject" placeholder="Mathematics">
-            </div>
-            <div class="form-group">
-                <label>Exam Timing:</label>
-                <input type="text" id="dsTime" placeholder="08:30 AM - 11:30 AM">
-            </div>
-            <div class="form-group">
-                <label>Room / Block No:</label>
-                <input type="text" id="dsRoom" placeholder="Block A - Room 102">
-            </div>
-            <button class="admin-btn" onclick="addDateSheet()"><i class="fas fa-plus"></i> Add to Date Sheet</button>
-            <div id="dsAlert" class="success-alert">Date Sheet Updated Successfully!</div>
         </div>
+    </section>
 
-        <div id="sec-diary" class="admin-box">
-            <h2><i class="fas fa-book-open"></i> 2. Update Online Diary Subject Wise</h2>
-            <div class="form-group">
-                <label>Select Class:</label>
-                <select id="diaryClass">
-                    <option value="class1">Class 1</option><option value="class2">Class 2</option>
-                    <option value="class3">Class 3</option><option value="class4">Class 4</option>
-                    <option value="class5">Class 5</option><option value="class6">Class 6</option>
-                    <option value="class7">Class 7</option><option value="class8">Class 8</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Select Subject:</label>
-                <select id="diarySubject">
-                    <option value="English">English</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Urdu">Urdu</option>
-                    <option value="Science">Science</option>
-                    <option value="Social Studies">Social Studies</option>
-                    <option value="Islamiyat">Islamiyat</option>
-                    <option value="Computer Science">Computer Science</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Homework Details:</label>
-                <textarea id="diaryContent" rows="4" placeholder="e.g. Read Page No 24 carefully and solve assignment."></textarea>
-            </div>
-            <button class="admin-btn" onclick="updateSubjectDiary()"><i class="fas fa-upload"></i> Publish Subject Homework</button>
-            <div id="diaryAlert" class="success-alert">Subject Diary Updated Successfully!</div>
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <span class="close-modal" onclick="toggleLoginModal()">&times;</span>
+            <h3><i class="fas fa-lock"></i> Administration Login</h3>
+            <div class="login-group"><label>Username:</label><input type="text" id="userInput" placeholder="Enter username"></div>
+            <div class="login-group"><label>Password:</label><input type="password" id="passInput" placeholder="Enter password"></div>
+            <button class="admin-btn" onclick="checkLogin()">Secure Login</button>
         </div>
+    </div>
 
-        <div id="sec-results" class="admin-box">
-            <h2><i class="fas fa-file-excel"></i> 3. Upload Exam Results via Excel File</h2>
-            <p style="color: #666; margin-bottom: 10px;">Madam! Aap bacho ki result sheet excel file (.xlsx) yahan se upload karein.</p>
-            
-            <div class="excel-info">
-                <strong>Excel Sheet Column Structure Rules:</strong><br>
-                Zaroori Columns: <code>RollNo</code> (ya Roll No), <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>.<br>
-                Aap baqi subjects (English, Mathematics, Urdu, Science, GK, Drawing) ke columns bhi lazmi shamil rakhein.
-            </div>
-
-            <div class="form-group">
-                <label>Select Excel File (.xlsx / .xls):</label>
-                <input type="file" id="excelFile" accept=".xlsx, .xls">
-            </div>
-            <button class="admin-btn" style="background:#28a745;" onclick="uploadExcelResult()"><i class="fas fa-file-import"></i> Process & Upload Results</button>
-            <div id="resultAlert" class="success-alert">Excel Results Uploaded Successfully!</div>
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Pine Hills School. All Rights Reserved.</p>
+            <p>Designed for Students & Parents | Light Theme</p>
         </div>
+    </footer>
 
-        <div id="sec-fees" class="admin-box">
-            <h2><i class="fas fa-file-invoice-dollar"></i> 4. Update Student Fee Record</h2>
-            <div class="form-group">
-                <label>Student Roll Number:</label>
-                <input type="text" id="feeRoll" placeholder="e.g. 1001">
-            </div>
-            <div class="form-group">
-                <label>Student Name:</label>
-                <input type="text" id="feeName" placeholder="Muhammad Ali">
-            </div>
-            <div class="form-group">
-                <label>Father Name:</label>
-                <input type="text" id="feeFather" placeholder="Sajid Hussain">
-            </div>
-            <div class="form-group">
-                <label>Class:</label>
-                <input type="text" id="feeClass" placeholder="Class 9">
-            </div>
-            <div class="form-group">
-                <label>Current Payable Dues (Rs.):</label>
-                <input type="number" id="feePayable" placeholder="e.g. 4500">
-            </div>
-            <div class="form-group">
-                <label>Fee Month Name:</label>
-                <input type="text" id="feeMonth" placeholder="e.g. May 2026">
-            </div>
-            <div class="form-group">
-                <label>Select Fee Status:</label>
-                <select id="feeStatusSelect">
-                    <option value="Paid">Paid (Fees Jama Ho Gai)</option>
-                    <option value="Unpaid">Unpaid (Fees Rehti Hai)</option>
-                </select>
-            </div>
-            <button class="admin-btn" onclick="updateFeeRecord()"><i class="fas fa-save"></i> Save Student Fee Record</button>
-            <div id="feeAlert" class="success-alert">Student Fee Record Saved Successfully!</div>
-        </div>
-
-        <div id="sec-attendance" class="admin-box">
-            <h2><i class="fas fa-user-check"></i> 5. Update Attendance (Easy Way)</h2>
-            <p style="color: #666; margin-bottom: 15px;">Madam! Yahan bache ki details aur presents/absents ke total numbers likh dein.</p>
-            
-            <div class="grid-2col">
-                <div class="form-group">
-                    <label>Student Roll Number:</label>
-                    <input type="text" id="attRoll" placeholder="e.g. 1001">
-                </div>
-                <div class="form-group">
-                    <label>Select Class:</label>
-                    <select id="attClass">
-                        <option value="KG 1">KG 1</option><option value="KG 2">KG 2</option>
-                        <option value="Class 1">Class 1</option><option value="Class 2">Class 2</option>
-                        <option value="Class 3">Class 3</option><option value="Class 4">Class 4</option>
-                        <option value="Class 5">Class 5</option><option value="Class 6">Class 6</option>
-                        <option value="Class 7">Class 7</option><option value="Class 8">Class 8</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid-2col">
-                <div class="form-group">
-                    <label>Student Name:</label>
-                    <input type="text" id="attStudentName" placeholder="e.g. Muhammad Ali">
-                </div>
-                <div class="form-group">
-                    <label>Father Name:</label>
-                    <input type="text" id="attFatherName" placeholder="e.g. Sajid Hussain">
-                </div>
-            </div>
-
-            <div class="grid-3col" style="margin-top: 10px;">
-                <div class="form-group">
-                    <label>Total School Days:</label>
-                    <input type="number" id="attTotalDays" value="30" placeholder="e.g. 30">
-                </div>
-                <div class="form-group">
-                    <label>Total Presents:</label>
-                    <input type="number" id="attPresents" placeholder="e.g. 26">
-                </div>
-                <div class="form-group">
-                    <label>Total Absents:</label>
-                    <input type="number" id="attAbsents" placeholder="e.g. 4">
-                </div>
-            </div>
-            
-            <button class="admin-btn" style="background:#0284c7;" onclick="updateAttendanceRecord()"><i class="fas fa-save"></i> Save Attendance Report</button>
-            <div id="attendanceAlert" class="success-alert">Attendance Records Saved Successfully!</div>
-        </div>
-
-    </main>
-
-    <script>
-        window.openSection = function(evt, sectionId) {
-            let adminBoxes = document.getElementsByClassName("admin-box");
-            for (let i = 0; i < adminBoxes.length; i++) {
-                adminBoxes[i].classList.remove("active");
-            }
-            let menuButtons = document.getElementsByClassName("menu-btn");
-            for (let i = 0; i < menuButtons.length; i++) {
-                menuButtons[i].classList.remove("active");
-            }
-            document.getElementById(sectionId).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-    </script>
-
-    <!-- Firebase System Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Actual configuration from your Firebase app registration console
         const firebaseConfig = {
             apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
             authDomain: "pine-hills-school.firebaseapp.com",
@@ -303,10 +590,12 @@
             appId: "1:31002732655:web:37edd331495239524cefda"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        console.log("Pine Hills School Cloud Database Live Connected! 🎉");
 
-        // 1. DATE SHEET LOGIC
+        // --- 1. DATE SHEET SUBMISSION ---
         window.addDateSheet = async function() {
             let cls = document.getElementById("dsClass").value;
             let date = document.getElementById("dsDate").value.trim();
@@ -314,7 +603,7 @@
             let time = document.getElementById("dsTime").value.trim();
             let room = document.getElementById("dsRoom").value.trim();
 
-            if(!date || !sub) { alert("Date aur Subject lazmi likhein!"); return; }
+            if(!date || !sub) { alert("Date aur Subject likhna zaroori hai!"); return; }
 
             try {
                 let docId = `${cls}_${date.replace(/\s+/g, '_')}`;
@@ -332,23 +621,23 @@
                 document.getElementById("dsSubject").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Database update error.");
+                alert("Database insertion failed!");
             }
         }
 
-        // 2. SUBJECT WISE DIARY LOGIC
+        // --- 2. ONLINE DIARY SUBMISSION ---
         window.updateSubjectDiary = async function() {
             let cls = document.getElementById("diaryClass").value;
-            let subject = document.getElementById("diarySubject").value;
+            let sub = document.getElementById("diarySubject").value;
             let content = document.getElementById("diaryContent").value.trim();
 
-            if(!content) { alert("Homework Details likhein!"); return; }
+            if(!content) { alert("Homework likhna zaroori hai!"); return; }
 
             try {
-                let docId = `${cls}_${subject}`;
+                let docId = `${cls}_${sub}`;
                 await setDoc(doc(db, "onlineDiaries", docId), {
                     class: cls,
-                    subject: subject,
+                    subject: sub,
                     homework: content,
                     date: new Date().toLocaleDateString(),
                     updatedAt: new Date().toISOString()
@@ -362,50 +651,42 @@
             }
         }
 
-        // 3. EXCEL FILE PROCESSING LOGIC (FIXED CASE SENSITIVITY AND SPACES)
+        // --- 3. EXCEL AUTOMATED EXAM RESULT SUBMISSION ---
         window.uploadExcelResult = function() {
-            let fileInput = document.getElementById('excelFile');
-            if (fileInput.files.length === 0) { alert("Meharbani karke pehle ek Excel file select karein!"); return; }
-            
+            let fileInput = document.getElementById("excelFile");
+            if(fileInput.files.length === 0) { alert("Pehle koi excel file select karein!"); return; }
+
             let file = fileInput.files[0];
             let reader = new FileReader();
 
             reader.onload = function(e) {
                 let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, { type: 'array' });
-                let firstSheetName = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheetName];
-                let jsonData = XLSX.utils.sheet_to_json(worksheet);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let firstSheet = workbook.SheetNames[0];
+                let sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-                if(jsonData.length === 0) { alert("Excel file khali hai!"); return; }
+                if(sheetData.length === 0) { alert("Excel sheet khali hai!"); return; }
 
-                let uploadPromises = jsonData.map(async (row) => {
-                    let getValue = (keysArray) => {
-                        for (let key of keysArray) {
-                            let foundKey = Object.keys(row).find(k => k.toLowerCase().replace(/\s+/g, '') === key.toLowerCase());
-                            if (foundKey !== undefined) return row[foundKey];
-                        }
-                        return '';
-                    };
+                let uploadPromises = sheetData.map(async (row) => {
+                    let roll = String(row.RollNo || '').trim();
+                    if(!roll) return;
 
-                    let roll = String(getValue(['rollno', 'roll']) || '').trim();
-                    if(!roll) return; 
-
+                    // Custom loops to build raw dynamic subject payload including dynamic custom requirements
                     return setDoc(doc(db, "examResults", roll), {
                         rollNo: roll,
-                        name: String(getValue(['name', 'studentname']) || '').trim(),
-                        fatherName: String(getValue(['fathername', 'father']) || '').trim(),
-                        class: String(getValue(['class', 'grade_class']) || '').trim(),
-                        english: Number(getValue(['english', 'eng'])) || 0,
-                        mathematics: Number(getValue(['mathematics', 'maths', 'math'])) || 0,
-                        science: Number(getValue(['science', 'sci'])) || 0,
-                        urdu: Number(getValue(['urdu'])) || 0,
-                        gk: Number(getValue(['gk', 'g.k', 'generalknowledge'])) || 0,
-                        drawing: Number(getValue(['drawing', 'art'])) || 0,
-                        attendance: String(getValue(['attendance', 'presents'])) || '0',
-                        totalMarks: Number(getValue(['totalmarks', 'total'])) || 0,
-                        obtainedMarks: Number(getValue(['obtainedmarks', 'obtained'])) || 0,
-                        grade: String(getValue(['grade']) || '').trim(),
+                        name: row.Name || '',
+                        fatherName: row.FatherName || '',
+                        class: row.Class || '',
+                        english: row.English || 0,
+                        mathematics: row.Mathematics || 0,
+                        science: row.Science || 0,
+                        urdu: row.Urdu || 0,
+                        gk: row.G.k || row.GK || 0,
+                        drawing: row.drawing || row.Drawing || 0,
+                        attendance: row.attendance || row.Attendance || 0,
+                        totalMarks: row.TotalMarks || 0,
+                        obtainedMarks: row.ObtainedMarks || row.TotalMarks || 0,
+                        grade: row.Grade || '',
                         uploadedAt: new Date().toISOString()
                     });
                 });
@@ -415,30 +696,30 @@
                     setTimeout(() => { document.getElementById("resultAlert").style.display = "none"; }, 3000);
                     fileInput.value = "";
                 }).catch(err => {
-                    console.error("Firebase Batch Error Details: ", err);
-                    alert("Kuch student records save nahi ho sakay. Kindly check console.");
+                    console.error(err);
+                    alert("Kuch student records save nahi ho sakay.");
                 });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // 4. FEE SYSTEM LOGIC
+        // --- 4. FEE RECORD MANUAL MANAGEMENT ---
         window.updateFeeRecord = async function() {
             let roll = document.getElementById("feeRoll").value.trim();
             let name = document.getElementById("feeName").value.trim();
             let father = document.getElementById("feeFather").value.trim();
-            let cls = document.getElementById("feeClass").value.trim();
+            let sClass = document.getElementById("feeClass").value.trim();
             let payable = document.getElementById("feePayable").value.trim();
             let month = document.getElementById("feeMonth").value.trim();
             let status = document.getElementById("feeStatusSelect").value;
 
-            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
+            if(!roll || !name) { alert("Roll Number aur Name lazmi enter karein!"); return; }
 
             try {
                 await setDoc(doc(db, "feeRecords", roll), {
                     name: name,
                     father: father,
-                    class: cls,
+                    class: sClass,
                     payable: payable,
                     month: month,
                     status: status,
@@ -446,48 +727,87 @@
                 });
                 document.getElementById("feeAlert").style.display = "block";
                 setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
-                document.getElementById("feeRoll").value = ""; 
-                document.getElementById("feeName").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Fee record update error.");
+                alert("Fee status record updated error.");
             }
         }
 
-        // 5. ATTENDANCE HANDLER
+        // --- 5. ATTENDANCE SUBMISSION ---
         window.updateAttendanceRecord = async function() {
             let roll = document.getElementById("attRoll").value.trim();
             let cls = document.getElementById("attClass").value;
-            let sName = document.getElementById("attStudentName").value.trim();
-            let fName = document.getElementById("attFatherName").value.trim();
+            let name = document.getElementById("attStudentName").value.trim();
+            let father = document.getElementById("attFatherName").value.trim();
             let total = document.getElementById("attTotalDays").value.trim();
-            let presents = document.getElementById("attPresents").value.trim();
-            let absents = document.getElementById("attAbsents").value.trim();
+            let present = document.getElementById("attPresents").value.trim();
+            let absent = document.getElementById("attAbsents").value.trim();
 
-            if(!roll || !sName) { alert("Roll Number aur Student Name likhna zaroori hai!"); return; }
+            if(!roll || !name) { alert("Roll number aur Name zaroori hai!"); return; }
 
             try {
                 await setDoc(doc(db, "attendanceRecords", roll), {
                     class: cls,
-                    name: sName,
-                    father: fName,
+                    name: name,
+                    father: father,
                     totalDays: total,
-                    presents: presents,
-                    absents: absents,
+                    presents: present,
+                    absents: absent,
                     updatedAt: new Date().toISOString()
                 });
                 document.getElementById("attendanceAlert").style.display = "block";
                 setTimeout(() => { document.getElementById("attendanceAlert").style.display = "none"; }, 3000);
-
-                document.getElementById("attRoll").value = "";
-                document.getElementById("attStudentName").value = "";
-                document.getElementById("attFatherName").value = "";
-                document.getElementById("attPresents").value = "";
-                document.getElementById("attAbsents").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Attendance record update error.");
+                alert("Attendance could not be saved.");
             }
+        }
+    </script>
+
+    <script>
+        function toggleLoginModal() {
+            let modal = document.getElementById("loginModal");
+            if (modal) {
+                modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+            }
+        }
+
+        function checkLogin() {
+            let user = document.getElementById("userInput").value.trim();
+            let pass = document.getElementById("passInput").value.trim();
+            if (user === "admin" && pass === "pinehills2026") {
+                alert("Login Kamyab! Aapko Admin Dashboard par bheja ja raha hai.");
+                toggleLoginModal();
+                window.location.href = "admin.html";
+            } else {
+                alert("Galt Username ya Password!");
+            }
+        }
+
+        function logoutAdmin() {
+            if (document.getElementById("secretAdminPanel")) {
+                document.getElementById("secretAdminPanel").style.display = "none";
+            }
+            let btn = document.getElementById("loginToggleBtn");
+            if (btn) {
+                btn.innerHTML = "<i class='fas fa-lock'></i> Medum Login";
+            }
+            if (document.getElementById("userInput")) document.getElementById("userInput").value = "";
+            if (document.getElementById("passInput")) document.getElementById("passInput").value = "";
+        }
+
+        function openSection(evt, sectionId) {
+            let adminBoxes = document.getElementsByClassName("admin-box");
+            for (let i = 0; i < adminBoxes.length; i++) {
+                adminBoxes[i].classList.remove("active");
+            }
+            let menuButtons = document.getElementsByClassName("menu-btn");
+            for (let i = 0; i < menuButtons.length; i++) {
+                menuButtons[i].classList.remove("active");
+            }
+            let sec = document.getElementById(sectionId);
+            if (sec) sec.classList.add("active");
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add("active");
         }
     </script>
 </body>
