@@ -304,36 +304,43 @@
                     const tableBody = document.getElementById("marksTableBody");
                     tableBody.innerHTML = "";
 
-                    // Safe Helper function to extract fields ignoring case/spaces
+                    // Safe Helper function to extract fields ignoring case, spaces and dots
                     const getSubjectValue = (aliases) => {
                         for (let alias of aliases) {
-                            let foundKey = Object.keys(studentData).find(k => k.toLowerCase().replace(/\s+/g, '') === alias.toLowerCase());
+                            let foundKey = Object.keys(studentData).find(k => {
+                                let cleanKey = k.toLowerCase().replace(/[\s\-_\.]/g, '');
+                                return cleanKey === alias.toLowerCase().replace(/[\s\-_\.]/g, '');
+                            });
                             if (foundKey !== undefined) return studentData[foundKey];
                         }
                         return null;
                     };
 
-                    // Perfect defined order for subjects as requested
+                    // Perfect defined order for subjects as requested with full alias support
                     const subjectsConfig = [
                         { label: "English", aliases: ["english", "eng"] },
                         { label: "Urdu", aliases: ["urdu"] },
                         { label: "Mathematics", aliases: ["mathematics", "maths", "math"] },
                         { label: "Science", aliases: ["science", "sci"] },
-                        { label: "Social Studies (S-St)", aliases: ["socialstudies", "s-st", "sst", "socialstudies(s-st)", "socialst"] },
-                        { label: "General Knowledge (GK)", aliases: ["gk", "g.k", "generalknowledge"] },
+                        { label: "Social Studies (S-St)", aliases: ["socialstudies", "s-st", "sst", "s.st", "s.st.", "socialst"] },
+                        { label: "General Knowledge (GK)", aliases: ["gk", "g.k", "g.k.", "generalknowledge"] },
                         { label: "Drawing", aliases: ["drawing", "art"] }
                     ];
 
-                    // Loop through subjects in strict sequence and render ONLY IF values exist
+                    // Loop through subjects in strict sequence and render ONLY IF values exist and are NOT 0
                     subjectsConfig.forEach(sub => {
                         let marks = getSubjectValue(sub.aliases);
-                        // String version trimmed checking to ensure empty spaces aren't treated as filled marks
-                        if (marks !== null && marks !== undefined && String(marks).trim() !== "") {
-                            const row = `<tr>
-                                <td><strong>${sub.label}</strong></td>
-                                <td style="text-align: right;" class="marks-val">${marks}</td>
-                            </tr>`;
-                            tableBody.innerHTML += row;
+                        
+                        // Strict condition: agar marks null, undefined, khali string, ya 0 hain to hide rakho
+                        if (marks !== null && marks !== undefined) {
+                            let checkStr = String(marks).trim();
+                            if (checkStr !== "" && checkStr !== "0" && checkStr !== 0) {
+                                const row = `<tr>
+                                    <td><strong>${sub.label}</strong></td>
+                                    <td style="text-align: right;" class="marks-val">${marks}</td>
+                                </tr>`;
+                                tableBody.innerHTML += row;
+                            }
                         }
                     });
 
