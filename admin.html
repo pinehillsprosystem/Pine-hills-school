@@ -38,24 +38,23 @@
             justify-content: center;
             gap: 8px;
         }
-        .menu-btn:hover { background: var(--light-blue); color: var(--dark-blue); }
+        .menu-btn:hover { background: #f0f7ff; color: #002147; }
         .menu-btn.active { 
-            background: var(--primary-blue); 
+            background: #0072ff; 
             color: white; 
             box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
         }
 
         /* Content Sections Toggle */
         .admin-box { 
-            display: none; /* Shuru me sab hidden hongay */
-            background: var(--light-gray); 
+            display: none; 
+            background: #f8fafc; 
             padding: 30px; 
             border-radius: 12px; 
             border: 1px solid rgba(0,0,0,0.05); 
             box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
             animation: fadeIn 0.4s ease;
         }
-        /* Sirf active box nazar aye ga */
         .admin-box.active { display: block; }
 
         @keyframes fadeIn {
@@ -65,10 +64,10 @@
 
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-weight: 600; color: #333; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 2px solid var(--light-blue); border-radius: 6px; font-size: 15px; outline: none; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
         
-        .admin-btn { background: var(--primary-blue); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; }
-        .admin-btn:hover { background: var(--dark-blue); }
+        .admin-btn { background: #0072ff; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; }
+        .admin-btn:hover { background: #0056c6; }
         
         .success-alert { display: none; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 12px; border-radius: 6px; margin-top: 10px; font-weight: 600; text-align: center; }
         .excel-info { background: #e2e3e5; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; color: #383d41; line-height: 1.5; }
@@ -84,7 +83,6 @@
 
     <header>
         <div class="container navbar">
-            <div class="logo-placeholder"><span>[ LOGO HERE ]</span></div>
             <div class="school-name">Pine Hills School (Admin Dashboard)</div>
             <nav>
                 <ul class="nav-links">
@@ -95,7 +93,7 @@
     </header>
 
     <main class="container admin-container">
-        <h1 style="color: var(--dark-blue); margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Management Admin Panel</h1>
+        <h1 style="color: #002147; margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Management Admin Panel</h1>
 
         <div class="admin-menu">
             <button class="menu-btn active" onclick="openSection(event, 'sec-datesheet')"><i class="fas fa-calendar-alt"></i> Date Sheet</button>
@@ -174,7 +172,8 @@
             
             <div class="excel-info">
                 <strong>Excel Sheet Column Structure Rules:</strong><br>
-                <code>RollNo</code>, <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>English</code>, <code>Mathematics</code>, <code>Science</code>, <code>Urdu</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>
+                Zaroori Columns: <code>RollNo</code> (ya Roll No), <code>Name</code>, <code>FatherName</code>, <code>Class</code>, <code>TotalMarks</code>, <code>ObtainedMarks</code>, <code>Grade</code>.<br>
+                Aap baqi subjects (English, Mathematics, Urdu, Science, GK, Drawing) ke columns bhi lazmi shamil rakhein.
             </div>
 
             <div class="form-group">
@@ -276,154 +275,219 @@
     </main>
 
     <script>
-        // Tab Navigation Controller Function
-        function openSection(evt, sectionId) {
-            // Tamam admin boxes ko hide karo
+        window.openSection = function(evt, sectionId) {
             let adminBoxes = document.getElementsByClassName("admin-box");
             for (let i = 0; i < adminBoxes.length; i++) {
                 adminBoxes[i].classList.remove("active");
             }
-
-            // Tamam menu buttons se active class hatao
             let menuButtons = document.getElementsByClassName("menu-btn");
             for (let i = 0; i < menuButtons.length; i++) {
                 menuButtons[i].classList.remove("active");
             }
-
-            // Sirf selected box ko show karo aur button ko active karo
             document.getElementById(sectionId).classList.add("active");
             evt.currentTarget.classList.add("active");
         }
+    </script>
 
-        // 1. Date Sheet Logic
-        function addDateSheet() {
+    <!-- Firebase System Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
+            authDomain: "pine-hills-school.firebaseapp.com",
+            projectId: "pine-hills-school",
+            storageBucket: "pine-hills-school.firebasestorage.app",
+            messagingSenderId: "31002732655",
+            appId: "1:31002732655:web:37edd331495239524cefda"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 1. DATE SHEET LOGIC
+        window.addDateSheet = async function() {
             let cls = document.getElementById("dsClass").value;
             let date = document.getElementById("dsDate").value.trim();
             let sub = document.getElementById("dsSubject").value.trim();
             let time = document.getElementById("dsTime").value.trim();
             let room = document.getElementById("dsRoom").value.trim();
+
             if(!date || !sub) { alert("Date aur Subject lazmi likhein!"); return; }
-            let localDS = localStorage.getItem("localDateSheet") ? JSON.parse(localStorage.getItem("localDateSheet")) : {};
-            if(!localDS[cls]) { localDS[cls] = []; }
-            localDS[cls].push({ date: date, subject: sub, time: time, room: room });
-            localStorage.setItem("localDateSheet", JSON.stringify(localDS));
-            document.getElementById("dsAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
-            document.getElementById("dsDate").value = ""; document.getElementById("dsSubject").value = "";
+
+            try {
+                let docId = `${cls}_${date.replace(/\s+/g, '_')}`;
+                await setDoc(doc(db, "dateSheets", docId), {
+                    class: cls,
+                    date: date,
+                    subject: sub,
+                    time: time,
+                    room: room,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("dsAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
+                document.getElementById("dsDate").value = ""; 
+                document.getElementById("dsSubject").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Database update error.");
+            }
         }
 
-        // 2. Fee System Logic
-        function updateFeeRecord() {
-            let roll = document.getElementById("feeRoll").value.trim();
-            let name = document.getElementById("feeName").value.trim();
-            let father = document.getElementById("feeFather").value.trim();
-            let cls = document.getElementById("feeClass").value.trim();
-            let payable = parseInt(document.getElementById("feePayable").value) || 0;
-            let month = document.getElementById("feeMonth").value.trim() || "Current Month";
-            let status = document.getElementById("feeStatusSelect").value;
-            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
-            let localFees = localStorage.getItem("localFeeDB") ? JSON.parse(localStorage.getItem("localFeeDB")) : {};
-            let statusText = (status === "Paid") ? "All Dues Clear" : "Pending Payment";
-            localFees[roll] = {
-                name: name, father: father, class: cls, payable: payable, statusText: statusText,
-                history: [{ month: month, challan: "PHS-" + Math.floor(1000 + Math.random() * 9000), amount: "Rs. " + payable.toLocaleString(), status: status, canDownload: status === "Unpaid" ? true : false }]
-            };
-            localStorage.setItem("localFeeDB", JSON.stringify(localFees));
-            document.getElementById("feeAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
-            document.getElementById("feeRoll").value = ""; document.getElementById("feeName").value = "";
-        }
-
-        // 3. Subject Wise Diary Logic
-        function updateSubjectDiary() {
+        // 2. SUBJECT WISE DIARY LOGIC
+        window.updateSubjectDiary = async function() {
             let cls = document.getElementById("diaryClass").value;
             let subject = document.getElementById("diarySubject").value;
             let content = document.getElementById("diaryContent").value.trim();
+
             if(!content) { alert("Homework Details likhein!"); return; }
-            let localDiary = localStorage.getItem("localSubjectDiaryDB") ? JSON.parse(localStorage.getItem("localSubjectDiaryDB")) : {};
-            if(!localDiary[cls]) { localDiary[cls] = {}; }
-            localDiary[cls][subject] = content;
-            localStorage.setItem("localSubjectDiaryDB", JSON.stringify(localDiary));
-            document.getElementById("diaryAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
-            document.getElementById("diaryContent").value = "";
+
+            try {
+                let docId = `${cls}_${subject}`;
+                await setDoc(doc(db, "onlineDiaries", docId), {
+                    class: cls,
+                    subject: subject,
+                    homework: content,
+                    date: new Date().toLocaleDateString(),
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("diaryAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("diaryAlert").style.display = "none"; }, 3000);
+                document.getElementById("diaryContent").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Diary update error.");
+            }
         }
 
-        // 4. Excel File Processing Logic for Exams Result
-        function uploadExcelResult() {
+        // 3. EXCEL FILE PROCESSING LOGIC (FIXED CASE SENSITIVITY AND SPACES)
+        window.uploadExcelResult = function() {
             let fileInput = document.getElementById('excelFile');
             if (fileInput.files.length === 0) { alert("Meharbani karke pehle ek Excel file select karein!"); return; }
+            
             let file = fileInput.files[0];
             let reader = new FileReader();
+
             reader.onload = function(e) {
                 let data = new Uint8Array(e.target.result);
                 let workbook = XLSX.read(data, { type: 'array' });
                 let firstSheetName = workbook.SheetNames[0];
                 let worksheet = workbook.Sheets[firstSheetName];
                 let jsonData = XLSX.utils.sheet_to_json(worksheet);
+
                 if(jsonData.length === 0) { alert("Excel file khali hai!"); return; }
-                let localResults = {};
-                jsonData.forEach(row => {
-                    if(row.RollNo) {
-                        let rollKey = row.RollNo.toString().trim();
-                        let subjectsArray = [];
-                        let exclusionList = ['RollNo', 'Name', 'FatherName', 'Class', 'TotalMarks', 'ObtainedMarks', 'Grade'];
-                        Object.keys(row).forEach(key => {
-                            if(!exclusionList.includes(key)) {
-                                subjectsArray.push({ name: key, obtained: row[key] !== undefined ? row[key].toString() : "0" });
-                            }
-                        });
-                        localResults[rollKey] = {
-                            name: row.Name || "N/A", father: row.FatherName || "N/A", class: row.Class || "N/A",
-                            subjects: subjectsArray, totalMarks: row.TotalMarks ? row.TotalMarks.toString() : "0",
-                            obtainedMarks: row.ObtainedMarks ? row.ObtainedMarks.toString() : "0", grade: row.Grade || "N/A"
-                        };
-                    }
+
+                let uploadPromises = jsonData.map(async (row) => {
+                    let getValue = (keysArray) => {
+                        for (let key of keysArray) {
+                            let foundKey = Object.keys(row).find(k => k.toLowerCase().replace(/\s+/g, '') === key.toLowerCase());
+                            if (foundKey !== undefined) return row[foundKey];
+                        }
+                        return '';
+                    };
+
+                    let roll = String(getValue(['rollno', 'roll']) || '').trim();
+                    if(!roll) return; 
+
+                    return setDoc(doc(db, "examResults", roll), {
+                        rollNo: roll,
+                        name: String(getValue(['name', 'studentname']) || '').trim(),
+                        fatherName: String(getValue(['fathername', 'father']) || '').trim(),
+                        class: String(getValue(['class', 'grade_class']) || '').trim(),
+                        english: Number(getValue(['english', 'eng'])) || 0,
+                        mathematics: Number(getValue(['mathematics', 'maths', 'math'])) || 0,
+                        science: Number(getValue(['science', 'sci'])) || 0,
+                        urdu: Number(getValue(['urdu'])) || 0,
+                        gk: Number(getValue(['gk', 'g.k', 'generalknowledge'])) || 0,
+                        drawing: Number(getValue(['drawing', 'art'])) || 0,
+                        attendance: String(getValue(['attendance', 'presents'])) || '0',
+                        totalMarks: Number(getValue(['totalmarks', 'total'])) || 0,
+                        obtainedMarks: Number(getValue(['obtainedmarks', 'obtained'])) || 0,
+                        grade: String(getValue(['grade']) || '').trim(),
+                        uploadedAt: new Date().toISOString()
+                    });
                 });
-                localStorage.setItem("localResultDB", JSON.stringify(localResults));
-                document.getElementById("resultAlert").style.display = "block";
-                setTimeout(() => { document.getElementById("resultAlert").style.display = "none"; }, 3000);
-                fileInput.value = "";
+
+                Promise.all(uploadPromises).then(() => {
+                    document.getElementById("resultAlert").style.display = "block";
+                    setTimeout(() => { document.getElementById("resultAlert").style.display = "none"; }, 3000);
+                    fileInput.value = "";
+                }).catch(err => {
+                    console.error("Firebase Batch Error Details: ", err);
+                    alert("Kuch student records save nahi ho sakay. Kindly check console.");
+                });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // 5. Easy Mode Attendance Handler
-        function updateAttendanceRecord() {
+        // 4. FEE SYSTEM LOGIC
+        window.updateFeeRecord = async function() {
+            let roll = document.getElementById("feeRoll").value.trim();
+            let name = document.getElementById("feeName").value.trim();
+            let father = document.getElementById("feeFather").value.trim();
+            let cls = document.getElementById("feeClass").value.trim();
+            let payable = document.getElementById("feePayable").value.trim();
+            let month = document.getElementById("feeMonth").value.trim();
+            let status = document.getElementById("feeStatusSelect").value;
+
+            if(!roll || !name) { alert("Roll Number aur Student Name zaroori hai!"); return; }
+
+            try {
+                await setDoc(doc(db, "feeRecords", roll), {
+                    name: name,
+                    father: father,
+                    class: cls,
+                    payable: payable,
+                    month: month,
+                    status: status,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("feeAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
+                document.getElementById("feeRoll").value = ""; 
+                document.getElementById("feeName").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Fee record update error.");
+            }
+        }
+
+        // 5. ATTENDANCE HANDLER
+        window.updateAttendanceRecord = async function() {
             let roll = document.getElementById("attRoll").value.trim();
             let cls = document.getElementById("attClass").value;
             let sName = document.getElementById("attStudentName").value.trim();
             let fName = document.getElementById("attFatherName").value.trim();
-            let total = parseInt(document.getElementById("attTotalDays").value) || 30;
-            let presents = parseInt(document.getElementById("attPresents").value) || 0;
-            let absents = parseInt(document.getElementById("attAbsents").value) || 0;
+            let total = document.getElementById("attTotalDays").value.trim();
+            let presents = document.getElementById("attPresents").value.trim();
+            let absents = document.getElementById("attAbsents").value.trim();
 
-            if(!roll || !sName) { 
-                alert("Roll Number aur Student Name likhna zaroori hai!"); 
-                return; 
+            if(!roll || !sName) { alert("Roll Number aur Student Name likhna zaroori hai!"); return; }
+
+            try {
+                await setDoc(doc(db, "attendanceRecords", roll), {
+                    class: cls,
+                    name: sName,
+                    father: fName,
+                    totalDays: total,
+                    presents: presents,
+                    absents: absents,
+                    updatedAt: new Date().toISOString()
+                });
+                document.getElementById("attendanceAlert").style.display = "block";
+                setTimeout(() => { document.getElementById("attendanceAlert").style.display = "none"; }, 3000);
+
+                document.getElementById("attRoll").value = "";
+                document.getElementById("attStudentName").value = "";
+                document.getElementById("attFatherName").value = "";
+                document.getElementById("attPresents").value = "";
+                document.getElementById("attAbsents").value = "";
+            } catch (e) {
+                console.error(e);
+                alert("Attendance record update error.");
             }
-
-            let localAttendance = localStorage.getItem("localAttendanceDB") ? JSON.parse(localStorage.getItem("localAttendanceDB")) : {};
-            
-            localAttendance[roll] = {
-                studentName: sName,
-                fatherName: fName || "N/A",
-                studentClass: cls,
-                totalDays: total,
-                presentsCount: presents,
-                absentsCount: absents
-            };
-
-            localStorage.setItem("localAttendanceDB", JSON.stringify(localAttendance));
-            
-            document.getElementById("attendanceAlert").style.display = "block";
-            setTimeout(() => { document.getElementById("attendanceAlert").style.display = "none"; }, 3000);
-
-            document.getElementById("attRoll").value = "";
-            document.getElementById("attStudentName").value = "";
-            document.getElementById("attFatherName").value = "";
-            document.getElementById("attPresents").value = "";
-            document.getElementById("attAbsents").value = "";
         }
     </script>
 </body>
