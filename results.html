@@ -308,8 +308,8 @@
                     const getSubjectValue = (aliases) => {
                         for (let alias of aliases) {
                             let foundKey = Object.keys(studentData).find(k => {
-                                let cleanKey = k.toLowerCase().replace(/[\s\-_\.]/g, '');
-                                return cleanKey === alias.toLowerCase().replace(/[\s\-_\.]/g, '');
+                                let cleanKey = k.toLowerCase().replace(/[\s\-_.]/g, '');
+                                return cleanKey === alias.toLowerCase().replace(/[\s\-_.]/g, '');
                             });
                             if (foundKey !== undefined) return studentData[foundKey];
                         }
