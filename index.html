@@ -107,7 +107,7 @@
                 font-size: 13px;
                 padding: 6px 8px;
             }
-            .admin-login-btn { display: inline-block !important; }
+            .admin-login-btn { display: none !important; }
         }
 
         @media (max-width: 380px) {
@@ -168,7 +168,7 @@
         .login-group label { font-weight: 600; color: #333; }
         .login-group input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
 
-        /* --- Premium Admin Tabbed Panel --- */
+        /* --- RESTORED: Premium Admin Tabbed Panel --- */
         .integrated-admin-container {
             display: none; 
             background: #ffffff; 
@@ -180,6 +180,7 @@
         }
         .admin-container { padding: 10px 0; max-width: 100% !important; }
         
+        /* Restored Menu Layout & Tab Styling */
         .admin-menu { 
             display: flex; 
             flex-wrap: wrap; 
@@ -217,6 +218,7 @@
             box-shadow: 0 4px 14px rgba(0, 114, 255, 0.25); 
         }
         
+        /* Restored Box Panel Styling */
         .admin-box { 
             display: none; 
             background: #ffffff; 
@@ -228,6 +230,7 @@
         }
         .admin-box.active { display: block; }
         
+        /* Restored Form Elements Aesthetic */
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
         .form-group label { font-weight: 600; color: #1e293b; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea { 
@@ -245,6 +248,7 @@
             box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
         }
         
+        /* Restored Buttons & Alerts Styling */
         .admin-btn { 
             background: #0072ff; 
             color: #ffffff; 
@@ -266,6 +270,9 @@
             background: #0056c6; 
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(0, 114, 255, 0.2);
+        }
+        .admin-btn:active {
+            transform: translateY(0);
         }
         
         .success-alert { 
@@ -529,7 +536,6 @@
                 </div>
             </div>
         </div>
-
         <div id="students" class="portal-section">
             <h2><i class="fas fa-graduation-cap"></i> Student Corner</h2>
             <p>Apni parhai se mutaliq sab kuch yahan dekhain.</p>
@@ -574,6 +580,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Actual configuration from your Firebase app registration console
         const firebaseConfig = {
             apiKey: "AIzaSyDATM3pz-eauXtxt6t3V_shp-WBhuTuovI",
             authDomain: "pine-hills-school.firebaseapp.com",
@@ -583,11 +590,12 @@
             appId: "1:31002732655:web:37edd331495239524cefda"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         console.log("Pine Hills School Cloud Database Live Connected! 🎉");
 
-        // --- 1. LIVE DATE SHEET SUBMISSION ---
+        // --- 1. DATE SHEET SUBMISSION ---
         window.addDateSheet = async function() {
             let cls = document.getElementById("dsClass").value;
             let date = document.getElementById("dsDate").value.trim();
@@ -611,15 +619,13 @@
                 setTimeout(() => { document.getElementById("dsAlert").style.display = "none"; }, 3000);
                 document.getElementById("dsDate").value = ""; 
                 document.getElementById("dsSubject").value = "";
-                document.getElementById("dsTime").value = "";
-                document.getElementById("dsRoom").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Database submission failed!");
+                alert("Database insertion failed!");
             }
         }
 
-        // --- 2. LIVE ONLINE DIARY SUBMISSION ---
+        // --- 2. ONLINE DIARY SUBMISSION ---
         window.updateSubjectDiary = async function() {
             let cls = document.getElementById("diaryClass").value;
             let sub = document.getElementById("diarySubject").value;
@@ -641,11 +647,11 @@
                 document.getElementById("diaryContent").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Diary sync error.");
+                alert("Diary update error.");
             }
         }
 
-        // --- 3. LIVE AUTOMATED EXCEL RESULT PROCESSING ---
+        // --- 3. EXCEL AUTOMATED EXAM RESULT SUBMISSION ---
         window.uploadExcelResult = function() {
             let fileInput = document.getElementById("excelFile");
             if(fileInput.files.length === 0) { alert("Pehle koi excel file select karein!"); return; }
@@ -665,6 +671,7 @@
                     let roll = String(row.RollNo || '').trim();
                     if(!roll) return;
 
+                    // Custom loops to build raw dynamic subject payload including dynamic custom requirements
                     return setDoc(doc(db, "examResults", roll), {
                         rollNo: roll,
                         name: row.Name || '',
@@ -690,13 +697,13 @@
                     fileInput.value = "";
                 }).catch(err => {
                     console.error(err);
-                    alert("Kuch records save nahi ho sakay.");
+                    alert("Kuch student records save nahi ho sakay.");
                 });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- 4. LIVE FEE RECORD UPDATER ---
+        // --- 4. FEE RECORD MANUAL MANAGEMENT ---
         window.updateFeeRecord = async function() {
             let roll = document.getElementById("feeRoll").value.trim();
             let name = document.getElementById("feeName").value.trim();
@@ -706,7 +713,7 @@
             let month = document.getElementById("feeMonth").value.trim();
             let status = document.getElementById("feeStatusSelect").value;
 
-            if(!roll || !name) { alert("Roll Number aur Name enter karein!"); return; }
+            if(!roll || !name) { alert("Roll Number aur Name lazmi enter karein!"); return; }
 
             try {
                 await setDoc(doc(db, "feeRecords", roll), {
@@ -720,19 +727,13 @@
                 });
                 document.getElementById("feeAlert").style.display = "block";
                 setTimeout(() => { document.getElementById("feeAlert").style.display = "none"; }, 3000);
-                document.getElementById("feeRoll").value = "";
-                document.getElementById("feeName").value = "";
-                document.getElementById("feeFather").value = "";
-                document.getElementById("feeClass").value = "";
-                document.getElementById("feePayable").value = "";
-                document.getElementById("feeMonth").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Fee status entry mismatch.");
+                alert("Fee status record updated error.");
             }
         }
 
-        // --- 5. LIVE ATTENDANCE MANAGEMENT ---
+        // --- 5. ATTENDANCE SUBMISSION ---
         window.updateAttendanceRecord = async function() {
             let roll = document.getElementById("attRoll").value.trim();
             let cls = document.getElementById("attClass").value;
@@ -756,14 +757,9 @@
                 });
                 document.getElementById("attendanceAlert").style.display = "block";
                 setTimeout(() => { document.getElementById("attendanceAlert").style.display = "none"; }, 3000);
-                document.getElementById("attRoll").value = "";
-                document.getElementById("attStudentName").value = "";
-                document.getElementById("attFatherName").value = "";
-                document.getElementById("attPresents").value = "";
-                document.getElementById("attAbsents").value = "";
             } catch (e) {
                 console.error(e);
-                alert("Attendance sync failure.");
+                alert("Attendance could not be saved.");
             }
         }
     </script>
@@ -774,14 +770,17 @@
             modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
         }
 
-        function checkLogin() {
+                function checkLogin() {
             let user = document.getElementById("userInput").value.trim();
             let pass = document.getElementById("passInput").value.trim();
             if(user === "admin" && pass === "pinehills2026") {
-                document.getElementById("secretAdminPanel").style.display = "block";
-                document.getElementById("loginToggleBtn").innerHTML = "<i class='fas fa-unlock'></i> Panel Open";
+                alert("Login Kamyab! Aapko Admin Dashboard par bheja ja raha hai.");
                 toggleLoginModal();
-                document.getElementById("secretAdminPanel").scrollIntoView({ behavior: 'smooth' });
+                window.location.href = "admin.html";
+            } else {
+                alert("Galt Username ya Password!");
+            }
+        });
             } else {
                 alert("Galt Username ya Password!");
             }
