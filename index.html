@@ -767,30 +767,33 @@
     <script>
         function toggleLoginModal() {
             let modal = document.getElementById("loginModal");
-            modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+            if (modal) {
+                modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+            }
         }
 
-                function checkLogin() {
+        function checkLogin() {
             let user = document.getElementById("userInput").value.trim();
             let pass = document.getElementById("passInput").value.trim();
-            if(user === "admin" && pass === "pinehills2026") {
+            if (user === "admin" && pass === "pinehills2026") {
                 alert("Login Kamyab! Aapko Admin Dashboard par bheja ja raha hai.");
                 toggleLoginModal();
                 window.location.href = "admin.html";
             } else {
                 alert("Galt Username ya Password!");
             }
-        });
-            } else {
-                alert("Galt Username ya Password!");
-            }
         }
 
         function logoutAdmin() {
-            document.getElementById("secretAdminPanel").style.display = "none";
-            document.getElementById("loginToggleBtn").innerHTML = "<i class='fas fa-lock'></i> Medum Login";
-            document.getElementById("userInput").value = "";
-            document.getElementById("passInput").value = "";
+            if (document.getElementById("secretAdminPanel")) {
+                document.getElementById("secretAdminPanel").style.display = "none";
+            }
+            let btn = document.getElementById("loginToggleBtn");
+            if (btn) {
+                btn.innerHTML = "<i class='fas fa-lock'></i> Medum Login";
+            }
+            if (document.getElementById("userInput")) document.getElementById("userInput").value = "";
+            if (document.getElementById("passInput")) document.getElementById("passInput").value = "";
         }
 
         function openSection(evt, sectionId) {
@@ -802,8 +805,9 @@
             for (let i = 0; i < menuButtons.length; i++) {
                 menuButtons[i].classList.remove("active");
             }
-            document.getElementById(sectionId).classList.add("active");
-            evt.currentTarget.classList.add("active");
+            let sec = document.getElementById(sectionId);
+            if (sec) sec.classList.add("active");
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add("active");
         }
     </script>
 </body>
